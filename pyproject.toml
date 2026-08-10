@@ -1,0 +1,22 @@
+[project]
+name = "vocabio"
+version = "0.1.0"
+description = "A personal vocabulary manager built with Django and Python, deployed on Koyeb and connected to a Neon PostgreSQL database. Designed for organising, tracking, and learning English words with a secure and customisable system."
+authors = [
+    {name = "Alex",email = "alex.nuclearboy@gmail.com"}
+]
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+]
+
+
+[tool.poetry]
+package-mode = false
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
