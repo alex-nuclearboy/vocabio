@@ -5,6 +5,7 @@ variables. A local .env file is supported for development, while deployment
 environment variables take precedence in production.
 """
 
+import os
 from pathlib import Path
 
 import environ
@@ -158,11 +159,18 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # ---------------------------------------------------------------------------
 
-DATABASE_URL = env("DATABASE_URL").strip()
+DATABASE_URL = os.path.expandvars(
+    env("DATABASE_URL").strip()
+)
 
 if not DATABASE_URL:
     raise ImproperlyConfigured(
         "DATABASE_URL must not be empty."
+    )
+
+if "${" in DATABASE_URL:
+    raise ImproperlyConfigured(
+        "DATABASE_URL contains unresolved environment variables."
     )
 
 DATABASE_CONN_MAX_AGE = env.int(
