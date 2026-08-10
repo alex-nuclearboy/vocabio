@@ -27,6 +27,11 @@ env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
 
 
+def get_str_env(name: str, default: str) -> str:
+    """Read a text environment variable with a non-empty default."""
+    return env(name, default=default).strip() or default
+
+
 # ---------------------------------------------------------------------------
 # Core security settings
 # ---------------------------------------------------------------------------
@@ -143,9 +148,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalisation
 # ---------------------------------------------------------------------------
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = get_str_env(
+    "DJANGO_LANGUAGE_CODE",
+    default="en-us",
+)
 
-TIME_ZONE = "UTC"
+TIME_ZONE = get_str_env(
+    "DJANGO_TIME_ZONE",
+    default="UTC",
+)
 
 USE_I18N = True
 
