@@ -32,6 +32,60 @@ def get_str_env(name: str, default: str) -> str:
     return env(name, default=default).strip() or default
 
 
+def build_database_config(
+    database_url: str,
+    conn_max_age: int,
+    conn_health_checks: bool,
+    connect_timeout: int,
+) -> dict[str, object]:
+    """Build and validate the Django PostgreSQL configuration."""
+    try:
+        database_config = environ.Env.db_url_config(database_url)
+    except (TypeError, ValueError) as exc:
+        raise ImproperlyConfigured(
+            "DATABASE_URL has an invalid format."
+        ) from exc
+
+    if database_config.get("ENGINE") != "django.db.backends.postgresql":
+        raise ImproperlyConfigured(
+            "DATABASE_URL must use PostgreSQL."
+        )
+
+    required_values = {
+        "NAME": "database name",
+        "USER": "database user",
+        "PASSWORD": "database password",
+        "HOST": "database host",
+    }
+
+    missing_values = [
+        description
+        for key, description in required_values.items()
+        if not database_config.get(key)
+    ]
+
+    if missing_values:
+        missing = ", ".join(missing_values)
+
+        raise ImproperlyConfigured(
+            f"DATABASE_URL is missing: {missing}."
+        )
+
+    database_config["CONN_MAX_AGE"] = conn_max_age
+    database_config["CONN_HEALTH_CHECKS"] = conn_health_checks
+
+    database_options = database_config.get("OPTIONS") or {}
+
+    database_options.setdefault(
+        "connect_timeout",
+        connect_timeout,
+    )
+
+    database_config["OPTIONS"] = database_options
+
+    return database_config
+
+
 # ---------------------------------------------------------------------------
 # Core security settings
 # ---------------------------------------------------------------------------
@@ -104,11 +158,45 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # ---------------------------------------------------------------------------
 
+DATABASE_URL = env("DATABASE_URL").strip()
+
+if not DATABASE_URL:
+    raise ImproperlyConfigured(
+        "DATABASE_URL must not be empty."
+    )
+
+DATABASE_CONN_MAX_AGE = env.int(
+    "DATABASE_CONN_MAX_AGE",
+    default=0,
+)
+
+if DATABASE_CONN_MAX_AGE < 0:
+    raise ImproperlyConfigured(
+        "DATABASE_CONN_MAX_AGE must not be negative."
+    )
+
+DATABASE_CONN_HEALTH_CHECKS = env.bool(
+    "DATABASE_CONN_HEALTH_CHECKS",
+    default=False,
+)
+
+DATABASE_CONNECT_TIMEOUT = env.int(
+    "DATABASE_CONNECT_TIMEOUT",
+    default=5,
+)
+
+if DATABASE_CONNECT_TIMEOUT <= 0:
+    raise ImproperlyConfigured(
+        "DATABASE_CONNECT_TIMEOUT must be greater than zero."
+    )
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": build_database_config(
+        database_url=DATABASE_URL,
+        conn_max_age=DATABASE_CONN_MAX_AGE,
+        conn_health_checks=DATABASE_CONN_HEALTH_CHECKS,
+        connect_timeout=DATABASE_CONNECT_TIMEOUT,
+    ),
 }
 
 
