@@ -1,0 +1,283 @@
+Environment configuration
+=========================
+
+Vocabio reads environment-specific and sensitive configuration from
+environment variables.
+
+A local ``.env`` file is supported for development. Environment variables
+already present in the process environment take precedence over values from
+the local file.
+
+The procedure for creating and preparing ``.env`` is documented in
+:doc:`../getting-started/local-development`.
+
+Local environment file
+----------------------
+
+The repository provides ``.env.example`` as the template for local
+configuration. It contains safe local defaults and empty placeholders for
+values that must be supplied locally.
+
+The local ``.env`` file must not be committed to the repository. Secret
+values must also not be added to ``.env.example``.
+
+Django variables
+----------------
+
+``DJANGO_SECRET_KEY``
+~~~~~~~~~~~~~~~~~~~~~
+
+Required.
+
+Contains the Django cryptographic signing key. The value must not be empty.
+
+Generate a separate value for local development as described in
+:doc:`../getting-started/local-development`.
+
+``DJANGO_DEBUG``
+~~~~~~~~~~~~~~~~
+
+Optional.
+
+Controls Django debug mode. The application default is ``False``. The local
+``.env.example`` value is ``True``.
+
+Debug mode should be enabled only in a development environment.
+
+``DJANGO_ALLOWED_HOSTS``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Contains a comma-separated list of hostnames or IP addresses accepted by
+Django. The application default is an empty list.
+
+The local ``.env.example`` value is:
+
+.. code-block:: text
+
+   localhost,127.0.0.1,[::1]
+
+The list allows requests addressed to the local machine using the hostname
+``localhost``, the IPv4 loopback address ``127.0.0.1``, or the IPv6 loopback
+address ``::1``.
+
+Values must contain hostnames or IP addresses only, without URL schemes,
+paths, or trailing slashes.
+
+Local PostgreSQL variables
+--------------------------
+
+The following variables configure the PostgreSQL service started by Docker
+Compose. They are used to initialise the container and to construct the local
+``DATABASE_URL``.
+
+``POSTGRES_DB``
+~~~~~~~~~~~~~~~
+
+The local database name.
+
+The ``.env.example`` value is:
+
+.. code-block:: text
+
+   vocabio
+
+``POSTGRES_USER``
+~~~~~~~~~~~~~~~~~
+
+The local PostgreSQL role.
+
+The ``.env.example`` value is:
+
+.. code-block:: text
+
+   vocabio
+
+``POSTGRES_PASSWORD``
+~~~~~~~~~~~~~~~~~~~~~
+
+Required for the local Docker Compose environment.
+
+Contains the password for the local PostgreSQL role. The value is
+intentionally empty in ``.env.example``.
+
+Because the same raw value is interpolated into ``DATABASE_URL``, use
+URL-safe characters unless the value is explicitly URL-encoded.
+
+``POSTGRES_HOST``
+~~~~~~~~~~~~~~~~~
+
+The host used by Django to reach the local PostgreSQL service.
+
+The ``.env.example`` value is:
+
+.. code-block:: text
+
+   127.0.0.1
+
+``POSTGRES_PORT``
+~~~~~~~~~~~~~~~~~
+
+The host port published by Docker Compose for PostgreSQL.
+
+The ``.env.example`` value is:
+
+.. code-block:: text
+
+   5432
+
+Change this value if the default PostgreSQL port is already in use locally.
+
+Database connection variables
+-----------------------------
+
+``DATABASE_URL``
+~~~~~~~~~~~~~~~~
+
+Required.
+
+Defines the PostgreSQL connection used by Django.
+
+The local ``.env.example`` value is assembled from the PostgreSQL variables:
+
+.. code-block:: text
+
+   DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+
+Environment-variable references are expanded before Django builds the
+database configuration.
+
+Detailed URL validation rules are documented in
+:doc:`database`.
+
+``DATABASE_CONN_MAX_AGE``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Defines the maximum lifetime of persistent database connections in seconds.
+The default value is ``0``.
+
+A value of ``0`` closes the connection at the end of each request. Negative
+values are rejected.
+
+``DATABASE_CONN_HEALTH_CHECKS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Controls Django connection health checks. The default value is ``False``.
+
+``DATABASE_CONNECT_TIMEOUT``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Defines the PostgreSQL connection timeout in seconds. The default value is
+``5`` and the configured value must be greater than zero.
+
+Application locale and time zone
+--------------------------------
+
+``DJANGO_LANGUAGE_CODE``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Defines the Django language code. The configured project default is
+``en-gb``.
+
+The local ``.env.example`` value is also:
+
+.. code-block:: text
+
+   en-gb
+
+``DJANGO_TIME_ZONE``
+~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Defines the Django time zone. The configured project default is ``UTC``.
+
+The local ``.env.example`` value is also:
+
+.. code-block:: text
+
+   UTC
+
+Use a valid IANA time zone name when changing this value.
+
+Configuration summary
+---------------------
+
+The local environment currently uses:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 25 40
+
+   * - Variable
+     - Local value
+     - Status
+   * - ``DJANGO_SECRET_KEY``
+     - Local secret
+     - Required, non-empty
+   * - ``DJANGO_DEBUG``
+     - ``True``
+     - Optional
+   * - ``DJANGO_ALLOWED_HOSTS``
+     - ``localhost,127.0.0.1,[::1]``
+     - Optional
+   * - ``POSTGRES_DB``
+     - ``vocabio``
+     - Required by Docker Compose
+   * - ``POSTGRES_USER``
+     - ``vocabio``
+     - Required by Docker Compose
+   * - ``POSTGRES_PASSWORD``
+     - Local secret
+     - Required by Docker Compose
+   * - ``POSTGRES_HOST``
+     - ``127.0.0.1``
+     - Required by local ``DATABASE_URL``
+   * - ``POSTGRES_PORT``
+     - ``5432``
+     - Required by Docker Compose
+   * - ``DATABASE_URL``
+     - Local PostgreSQL URL
+     - Required
+   * - ``DATABASE_CONN_MAX_AGE``
+     - ``0``
+     - Optional
+   * - ``DATABASE_CONN_HEALTH_CHECKS``
+     - ``False``
+     - Optional
+   * - ``DATABASE_CONNECT_TIMEOUT``
+     - ``5``
+     - Optional
+   * - ``DJANGO_LANGUAGE_CODE``
+     - ``en-gb``
+     - Optional
+   * - ``DJANGO_TIME_ZONE``
+     - ``UTC``
+     - Optional
+
+Applying local changes
+----------------------
+
+Restart the Django development server after changing values used by Django.
+
+If ``POSTGRES_PORT`` changes, recreate or update the Compose service so that
+the new port mapping is applied:
+
+.. code-block:: console
+
+   docker compose up -d postgres
+
+``POSTGRES_DB``, ``POSTGRES_USER``, and ``POSTGRES_PASSWORD`` are used when
+the PostgreSQL data volume is first initialised. Changing them does not
+automatically reconfigure an existing database stored in ``postgres_data``.
+
+For database-specific behaviour, see :doc:`database`.
