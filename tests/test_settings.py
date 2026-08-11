@@ -21,25 +21,22 @@ VALID_DATABASE_URL = (
 
 def load_settings_module(
     monkeypatch,
-    *,
-    secret_key: str = "test-secret-key",
-    database_url: str = VALID_DATABASE_URL,
-    conn_max_age: str = "0",
-    conn_health_checks: str = "False",
-    connect_timeout: str = "5",
+    env_overrides: dict[str, str] | None = None,
 ) -> ModuleType:
     """Load the settings module with controlled environment values."""
-    monkeypatch.setenv("DJANGO_SECRET_KEY", secret_key)
-    monkeypatch.setenv("DATABASE_URL", database_url)
-    monkeypatch.setenv("DATABASE_CONN_MAX_AGE", conn_max_age)
-    monkeypatch.setenv(
-        "DATABASE_CONN_HEALTH_CHECKS",
-        conn_health_checks,
-    )
-    monkeypatch.setenv(
-        "DATABASE_CONNECT_TIMEOUT",
-        connect_timeout,
-    )
+    environment = {
+        "DJANGO_SECRET_KEY": "test-secret-key",
+        "DATABASE_URL": VALID_DATABASE_URL,
+        "DATABASE_CONN_MAX_AGE": "0",
+        "DATABASE_CONN_HEALTH_CHECKS": "False",
+        "DATABASE_CONNECT_TIMEOUT": "5",
+    }
+
+    if env_overrides:
+        environment.update(env_overrides)
+
+    for name, value in environment.items():
+        monkeypatch.setenv(name, value)
 
     spec = importlib.util.spec_from_file_location(
         "settings_under_test",
@@ -320,7 +317,9 @@ class TestModuleLevelValidation:
         ):
             load_settings_module(
                 monkeypatch,
-                secret_key="   ",
+                {
+                    "DJANGO_SECRET_KEY": "   ",
+                },
             )
 
     def test_rejects_empty_database_url(self, monkeypatch):
@@ -331,7 +330,9 @@ class TestModuleLevelValidation:
         ):
             load_settings_module(
                 monkeypatch,
-                database_url="   ",
+                {
+                    "DATABASE_URL": "   ",
+                },
             )
 
     @pytest.mark.parametrize(
@@ -364,7 +365,9 @@ class TestModuleLevelValidation:
         ):
             load_settings_module(
                 monkeypatch,
-                database_url=database_url,
+                {
+                    "DATABASE_URL": database_url,
+                },
             )
 
     def test_expands_database_environment_variables(
@@ -379,10 +382,12 @@ class TestModuleLevelValidation:
 
         module = load_settings_module(
             monkeypatch,
-            database_url=(
-                "postgresql://user:pass@"
-                "${VOCABIO_TEST_DB_HOST}:5432/vocabio"
-            ),
+            {
+                "DATABASE_URL": (
+                    "postgresql://user:pass@"
+                    "${VOCABIO_TEST_DB_HOST}:5432/vocabio"
+                ),
+            },
         )
 
         assert module.DATABASE_URL == VALID_DATABASE_URL
@@ -399,7 +404,9 @@ class TestModuleLevelValidation:
         ):
             load_settings_module(
                 monkeypatch,
-                conn_max_age="-1",
+                {
+                    "DATABASE_CONN_MAX_AGE": "-1",
+                },
             )
 
     def test_accepts_zero_connection_max_age(
@@ -409,7 +416,9 @@ class TestModuleLevelValidation:
         """Accept zero as the database connection lifetime."""
         module = load_settings_module(
             monkeypatch,
-            conn_max_age="0",
+            {
+                "DATABASE_CONN_MAX_AGE": "0",
+            },
         )
 
         assert module.DATABASE_CONN_MAX_AGE == 0
@@ -426,7 +435,9 @@ class TestModuleLevelValidation:
         ):
             load_settings_module(
                 monkeypatch,
-                connect_timeout="0",
+                {
+                    "DATABASE_CONNECT_TIMEOUT": "0",
+                },
             )
 
     def test_rejects_negative_connection_timeout(
@@ -440,7 +451,9 @@ class TestModuleLevelValidation:
         ):
             load_settings_module(
                 monkeypatch,
-                connect_timeout="-1",
+                {
+                    "DATABASE_CONNECT_TIMEOUT": "-1",
+                },
             )
 
     def test_applies_database_health_checks(
@@ -450,7 +463,9 @@ class TestModuleLevelValidation:
         """Apply the configured database health-check setting."""
         module = load_settings_module(
             monkeypatch,
-            conn_health_checks="True",
+            {
+                "DATABASE_CONN_HEALTH_CHECKS": "True",
+            },
         )
 
         assert module.DATABASE_CONN_HEALTH_CHECKS is True
@@ -466,7 +481,9 @@ class TestModuleLevelValidation:
         """Apply the configured database connection timeout."""
         module = load_settings_module(
             monkeypatch,
-            connect_timeout="10",
+            {
+                "DATABASE_CONNECT_TIMEOUT": "10",
+            },
         )
 
         assert module.DATABASE_CONNECT_TIMEOUT == 10
