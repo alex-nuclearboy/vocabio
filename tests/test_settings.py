@@ -300,6 +300,31 @@ class TestBuildDatabaseConfig:
         assert config["OPTIONS"]["connect_timeout"] == 10
         assert len(config["OPTIONS"]) > 1
 
+    def test_rejects_unexpected_database_engine(
+        self,
+        monkeypatch,
+        settings_module,
+    ):
+        """Reject an unexpected database engine returned by django-environ."""
+        monkeypatch.setattr(
+            settings_module.environ.Env,
+            "db_url_config",
+            lambda _url: {
+                "ENGINE": "django.db.backends.sqlite3",
+            },
+        )
+
+        with pytest.raises(
+            ImproperlyConfigured,
+            match="DATABASE_URL must use PostgreSQL",
+        ):
+            settings_module.build_database_config(
+                database_url=VALID_DATABASE_URL,
+                conn_max_age=0,
+                conn_health_checks=False,
+                connect_timeout=5,
+            )
+
 
 # ---------------------------------------------------------------------------
 # Module-level validation
