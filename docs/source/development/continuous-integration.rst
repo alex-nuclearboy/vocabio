@@ -153,7 +153,8 @@ Installed Python dependencies are checked for known vulnerabilities:
 Static analysis
 ~~~~~~~~~~~~~~~
 
-Pylint runs against the current project source and tests.
+Pylint runs against the current project source, tests, and Sphinx
+configuration.
 
 The CI invocation uses GitHub-compatible output formatting so that reported
 issues can be surfaced by the workflow interface.
@@ -173,7 +174,7 @@ The workflow runs:
 Test suite
 ~~~~~~~~~~
 
-The final project check runs:
+The workflow runs the complete test suite with:
 
 .. code-block:: console
 
@@ -183,6 +184,19 @@ Coverage collection and the minimum coverage threshold are applied through
 the pytest configuration in ``pyproject.toml``.
 
 Testing and coverage are documented in :doc:`testing`.
+
+Documentation build
+~~~~~~~~~~~~~~~~~~~
+
+The workflow performs a clean Sphinx HTML build with strict warning and
+cross-reference checking:
+
+.. code-block:: console
+
+   poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
+
+The CI run fails if the documentation produces a Sphinx warning, contains an
+unresolved reference, or cannot be built successfully.
 
 Relationship to local checks
 ----------------------------

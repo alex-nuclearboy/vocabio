@@ -29,7 +29,7 @@ Run Pylint with:
 
 .. code-block:: console
 
-   poetry run pylint config tests manage.py
+   poetry run pylint config tests manage.py docs/source/conf.py
 
 The Pylint configuration is maintained in ``pyproject.toml``.
 
@@ -105,6 +105,21 @@ Review reported vulnerabilities before updating or suppressing affected
 dependencies. Dependency changes should remain consistent with
 ``pyproject.toml`` and ``poetry.lock``.
 
+Documentation validation
+------------------------
+
+Build the Sphinx documentation with strict warning and cross-reference
+checking:
+
+.. code-block:: console
+
+   poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
+
+The command performs a clean documentation build and fails if Sphinx reports
+a warning, an unresolved reference, or a build error.
+
+The generated HTML files are written to ``docs/_build/html``.
+
 Recommended check sequence
 --------------------------
 
@@ -114,9 +129,10 @@ The complete local quality-check sequence is:
 
    poetry check
    poetry run python -m pip_audit --local
-   poetry run pylint config tests manage.py
+   poetry run pylint config tests manage.py docs/source/conf.py
    poetry run python manage.py check
    poetry run pytest
+   poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
 
 These checks correspond to the principal checks performed by continuous
 integration.

@@ -83,9 +83,13 @@ jobs:
           config
           tests
           manage.py
+          docs/source/conf.py
 
       - name: Run Django checks
         run: poetry run python manage.py check
 
       - name: Run tests with coverage
         run: poetry run pytest
+
+      - name: Build documentation
+        run: poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
