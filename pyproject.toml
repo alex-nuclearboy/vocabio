@@ -28,9 +28,24 @@ build-backend = "poetry.core.masonry.api"
 [dependency-groups]
 dev = [
     "pytest (>=9.1.1,<10.0.0)",
-    "pytest-django (>=4.14.0,<5.0.0)"
+    "pytest-django (>=4.14.0,<5.0.0)",
+    "pylint (>=4.0.7,<5.0.0)",
+    "pylint-django (>=2.8.0,<3.0.0)"
 ]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
+
+[tool.pylint.main]
+load-plugins = ["pylint_django"]
+django-settings-module = "config.settings"
+py-version = "3.13"
+ignore = ["migrations"]
+jobs = 0
+
+[tool.pylint.format]
+max-line-length = 79
+
+[tool.pylint.similarities]
+min-similarity-lines = 4
