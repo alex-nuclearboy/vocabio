@@ -6,7 +6,9 @@ environment variables take precedence in production.
 """
 
 import os
+import re
 from pathlib import Path
+from urllib.parse import urlparse
 
 import environ
 from django.core.exceptions import ImproperlyConfigured
@@ -41,11 +43,29 @@ def build_database_config(
 ) -> dict[str, object]:
     """Build and validate the Django PostgreSQL configuration."""
     try:
-        database_config = environ.Env.db_url_config(database_url)
+        parsed_url = urlparse(database_url)
+        _ = parsed_url.port
     except (TypeError, ValueError) as exc:
         raise ImproperlyConfigured(
             "DATABASE_URL has an invalid format."
         ) from exc
+
+    if not parsed_url.scheme or "://" not in database_url:
+        raise ImproperlyConfigured(
+            "DATABASE_URL has an invalid format."
+        )
+
+    if parsed_url.scheme not in {
+        "postgres",
+        "postgresql",
+        "psql",
+        "pgsql",
+    }:
+        raise ImproperlyConfigured(
+            "DATABASE_URL must use PostgreSQL."
+        )
+
+    database_config = environ.Env.db_url_config(database_url)
 
     if database_config.get("ENGINE") != "django.db.backends.postgresql":
         raise ImproperlyConfigured(
@@ -165,7 +185,10 @@ if not DATABASE_URL:
         "DATABASE_URL must not be empty."
     )
 
-if "${" in DATABASE_URL:
+if re.search(
+    r"\$(?:\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)",
+    DATABASE_URL,
+):
     raise ImproperlyConfigured(
         "DATABASE_URL contains unresolved environment variables."
     )
