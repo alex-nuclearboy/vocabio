@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  POETRY_VERSION: "2.4.1"
+
+  DJANGO_SECRET_KEY: "ci-only-secret-key-h6-unp6$s)%%2ck5ug*8e9+c^)m+n=1hd$z4=s16soupcoa2&+"
+  DJANGO_DEBUG: "False"
+  DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
+
+  DATABASE_URL: "postgresql://vocabio:vocabio@127.0.0.1:5432/vocabio"
+  DATABASE_CONN_MAX_AGE: "0"
+  DATABASE_CONN_HEALTH_CHECKS: "False"
+  DATABASE_CONNECT_TIMEOUT: "5"
+
+  DJANGO_LANGUAGE_CODE: "en-gb"
+  DJANGO_TIME_ZONE: "UTC"
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+
+        env:
+          POSTGRES_DB: vocabio
+          POSTGRES_USER: vocabio
+          POSTGRES_PASSWORD: vocabio
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd "pg_isready -U vocabio -d vocabio"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install Poetry
+        run: pipx install "poetry==$POETRY_VERSION"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+          cache: poetry
+          cache-dependency-path: poetry.lock
+
+      - name: Validate Poetry configuration
+        run: poetry check
+
+      - name: Install dependencies
+        run: poetry install --with dev --no-interaction --no-root --no-ansi
+
+      - name: Audit Python dependencies
+        run: poetry run python -m pip_audit --local
+
+      - name: Run Pylint
+        run: >
+          poetry run pylint
+          --django-settings-module=config.settings
+          --output-format=github
+          config
+          tests
+          manage.py
+
+      - name: Run Django checks
+        run: poetry run python manage.py check
+
+      - name: Run tests with coverage
+        run: poetry run pytest
