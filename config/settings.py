@@ -29,7 +29,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 
 
 def get_str_env(name: str, default: str) -> str:
-    """Read a text environment variable with a non-empty default."""
+    """Return a stripped environment variable or its default value."""
     return env(name, default=default).strip() or default
 
 
@@ -91,7 +91,6 @@ def build_database_config(
 # Core security settings
 # ---------------------------------------------------------------------------
 
-# A missing secret key is treated as a configuration error.
 SECRET_KEY = env("DJANGO_SECRET_KEY").strip()
 
 if not SECRET_KEY:
@@ -99,13 +98,11 @@ if not SECRET_KEY:
         "DJANGO_SECRET_KEY must not be empty."
     )
 
-# Debug mode should be enabled only in the local development environment.
 DEBUG = env.bool(
     "DJANGO_DEBUG",
     default=False,
 )
 
-# Multiple hosts are supplied as a comma-separated environment variable.
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
     default=[],
