@@ -20,12 +20,17 @@ The current project foundation has the following structure:
    │   ├── urls.py
    │   └── wsgi.py
    ├── docs/
-   │   └── source/
-   │        ├── configuration/
-   │        ├── development/
-   │        ├── getting-started/
-   │        ├── project/
-   │        └── reference/
+   │   ├── source/
+   │   │   ├── configuration/
+   │   │   ├── development/
+   │   │   ├── getting-started/
+   │   │   ├── project/
+   │   │   ├── reference/
+   │   │   ├── conf.py
+   │   │   └── index.rst
+   │   ├── Makefile
+   │   ├── README.md
+   │   └── make.bat
    ├── tests/
    │   └── test_settings.py
    ├── .env.example
@@ -127,17 +132,22 @@ Documentation
 
 Project documentation is maintained with Sphinx under ``docs``.
 
-The documentation source is organised by responsibility:
+The documentation directory is organised as follows:
 
 .. code-block:: text
 
    docs/
-   └── source/
-       ├── getting-started/
-       ├── configuration/
-       ├── development/
-       ├── project/
-       └── reference/
+   ├── source/
+   │   ├── configuration/
+   │   ├── development/
+   │   ├── getting-started/
+   │   ├── project/
+   │   ├── reference/
+   │   ├── conf.py
+   │   └── index.rst
+   ├── Makefile
+   ├── README.md
+   └── make.bat
 
 ``getting-started``
 ~~~~~~~~~~~~~~~~~~~
@@ -166,6 +176,8 @@ See :doc:`../development/index`.
 ~~~~~~~~~~~
 
 Documents the repository structure and other project-level information.
+
+See :doc:`index`.
 
 Additional documentation sections should be introduced only when the
 corresponding project components exist.
@@ -262,7 +274,7 @@ Provides the repository-level introduction to Vocabio and serves as the main
 entry point when the repository is viewed through the Git hosting service.
 
 Detailed technical documentation belongs in ``docs`` rather than being
-duplicated in the README.
+duplicated in the repository README.
 
 ``LICENSE``
 ~~~~~~~~~~~
