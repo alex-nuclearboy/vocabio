@@ -44,7 +44,7 @@ addopts = "--cov=config --cov-report=term-missing"
 [tool.pylint.main]
 load-plugins = ["pylint_django"]
 django-settings-module = "config.settings"
-py-version = "3.13"
+py-version = "3.12"
 ignore = ["migrations"]
 jobs = 0
 
