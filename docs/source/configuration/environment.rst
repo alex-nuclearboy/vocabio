@@ -72,6 +72,11 @@ The following variables configure the PostgreSQL service started by Docker
 Compose. They are used to initialise the container and to construct the local
 ``DATABASE_URL``.
 
+Docker Compose requires ``POSTGRES_DB``, ``POSTGRES_USER``,
+``POSTGRES_PASSWORD``, and ``POSTGRES_PORT`` to be defined before the local
+PostgreSQL service can be started. Compose configuration fails immediately
+when any of these required values is missing.
+
 ``POSTGRES_DB``
 ~~~~~~~~~~~~~~~
 

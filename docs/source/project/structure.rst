@@ -32,6 +32,7 @@ The current project foundation has the following structure:
    │   ├── README.md
    │   └── make.bat
    ├── tests/
+   │   ├── __init__.py
    │   └── test_settings.py
    ├── .env.example
    ├── .gitignore
@@ -51,6 +52,17 @@ Project configuration
 ---------------------
 
 The ``config`` package contains the Django project configuration.
+
+The current foundation includes:
+
+.. code-block:: text
+
+   config/
+   ├── __init__.py
+   ├── asgi.py
+   ├── settings.py
+   ├── urls.py
+   └── wsgi.py
 
 ``config/settings.py``
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -101,16 +113,23 @@ The current foundation includes:
 .. code-block:: text
 
    tests/
+   ├── __init__.py
    └── test_settings.py
 
-``test_settings.py`` verifies environment handling and project configuration,
-including PostgreSQL database URL validation and related settings behaviour.
+``tests/test_settings.py`` verifies environment handling and project
+configuration, including PostgreSQL database URL validation and related
+settings behaviour.
 
 The testing framework, test execution, and coverage requirements are
 documented in :doc:`../development/testing`.
 
 As the project grows, tests should remain organised around the code and
 behaviour they verify.
+
+``tests/__init__.py``
+~~~~~~~~~~~~~~~~~~~~~
+
+Marks ``tests`` as a Python package.
 
 Continuous integration
 ----------------------
@@ -121,8 +140,9 @@ The GitHub Actions workflow is stored in:
 
    .github/workflows/ci.yml
 
-It runs the automated project checks in an isolated environment and uses a
-PostgreSQL service container where database access is required.
+It runs the primary project checks and Python compatibility checks in
+isolated environments, using PostgreSQL service containers where database
+access is required.
 
 The workflow and its individual checks are documented in
 :doc:`../development/continuous-integration`.

@@ -27,21 +27,31 @@ The workflow has read-only access to repository contents.
 Runtime environment
 -------------------
 
-The CI job runs on the current GitHub-hosted Ubuntu environment.
+The CI workflow runs on GitHub-hosted Ubuntu environments.
 
-The job has a timeout of 15 minutes.
+The primary ``checks`` job has a timeout of 15 minutes. The Python
+compatibility jobs have a timeout of 10 minutes each.
 
 Python
 ~~~~~~
 
-The workflow reads the Python version from:
+The primary ``checks`` job reads the preferred Python version from:
 
 .. code-block:: text
 
    .python-version
 
-Using the same repository-controlled runtime prevents the CI Python version
-from being maintained separately from the project configuration.
+The project currently uses Python 3.13 as its preferred development and
+primary CI runtime.
+
+A separate compatibility matrix verifies the other supported Python
+versions:
+
+* Python 3.12;
+* Python 3.14.
+
+Together, the primary and compatibility jobs verify the supported Python
+3.12, 3.13, and 3.14 range declared by the project.
 
 Poetry
 ~~~~~~
@@ -60,13 +70,13 @@ Dependency caching is handled by the Python setup action using
 PostgreSQL service
 ------------------
 
-The CI job starts an isolated PostgreSQL service container based on:
+The CI jobs start isolated PostgreSQL service containers based on:
 
 .. code-block:: text
 
    postgres:18-alpine
 
-The service creates a database and role using CI-only credentials.
+Each service creates a database and role using CI-only credentials.
 
 A PostgreSQL health check runs with ``pg_isready``. GitHub Actions waits for
 the service to become healthy before database-dependent project commands are
@@ -104,7 +114,7 @@ The meaning and application defaults of these variables are documented in
 Workflow checks
 ---------------
 
-The CI workflow performs the following steps in order.
+The primary ``checks`` job performs the following steps in order.
 
 Repository checkout
 ~~~~~~~~~~~~~~~~~~~
@@ -197,6 +207,29 @@ cross-reference checking:
 
 The CI run fails if the documentation produces a Sphinx warning, contains an
 unresolved reference, or cannot be built successfully.
+
+Python compatibility checks
+---------------------------
+
+A separate ``python-compatibility`` job verifies the supported Python
+versions that are not used by the primary ``checks`` job.
+
+The compatibility matrix currently runs on:
+
+* Python 3.12;
+* Python 3.14.
+
+For each version, the workflow:
+
+* checks out the repository;
+* installs Poetry;
+* configures the selected Python version;
+* installs the project and development dependencies;
+* runs Django system checks;
+* runs the complete test suite with coverage.
+
+Python 3.13 is not repeated in this matrix because it is already exercised
+by the primary ``checks`` job through ``.python-version``.
 
 Relationship to local checks
 ----------------------------

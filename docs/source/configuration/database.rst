@@ -116,9 +116,12 @@ Docker Compose database
 The local PostgreSQL service is named ``postgres`` and uses the
 ``postgres:18-alpine`` image.
 
-Docker Compose publishes the configured host port to PostgreSQL port ``5432``
-inside the container and stores database data in the named
-``postgres_data`` volume.
+Docker Compose publishes the configured host port on the IPv4 loopback
+interface only and maps it to PostgreSQL port ``5432`` inside the container.
+The database service is therefore not exposed through other host network
+interfaces.
+
+Database data is stored in the named ``postgres_data`` volume.
 
 The service health check uses ``pg_isready``. Database-dependent Django
 commands and tests should be run only after the service reports a healthy

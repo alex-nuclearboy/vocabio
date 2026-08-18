@@ -37,7 +37,7 @@ The current configuration:
 
 * loads ``pylint-django``;
 * uses ``config.settings`` as the Django settings module;
-* targets the project's configured Python version;
+* targets the project's minimum supported Python version;
 * ignores migration directories;
 * enforces a maximum line length of 79 characters;
 * reports duplicated code according to the configured similarity threshold.
