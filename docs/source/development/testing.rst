@@ -68,6 +68,10 @@ configuration.
 The current configuration tests cover behaviour such as:
 
 * environment variable handling;
+* production host validation;
+* CSRF trusted-origin normalisation;
+* secure cookie requirements;
+* HSTS configuration validation;
 * PostgreSQL URL validation;
 * invalid database URL formats and ports;
 * accepted and rejected database schemes;

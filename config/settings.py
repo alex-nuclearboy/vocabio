@@ -123,9 +123,80 @@ DEBUG = env.bool(
     default=False,
 )
 
+IS_PRODUCTION = not DEBUG
+
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
     default=[],
+)
+
+if IS_PRODUCTION and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured(
+        "DJANGO_ALLOWED_HOSTS must be configured when "
+        "DJANGO_DEBUG is False."
+    )
+
+if IS_PRODUCTION and "*" in ALLOWED_HOSTS:
+    raise ImproperlyConfigured(
+        "DJANGO_ALLOWED_HOSTS must not contain '*' in production."
+    )
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.rstrip("/")
+    for origin in env.list(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        default=[],
+    )
+]
+
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+SECURE_SSL_REDIRECT = env.bool(
+    "DJANGO_SECURE_SSL_REDIRECT",
+    default=False,
+)
+
+SESSION_COOKIE_SECURE = env.bool(
+    "DJANGO_SESSION_COOKIE_SECURE",
+    default=False,
+)
+
+CSRF_COOKIE_SECURE = env.bool(
+    "DJANGO_CSRF_COOKIE_SECURE",
+    default=False,
+)
+
+if IS_PRODUCTION and not SESSION_COOKIE_SECURE:
+    raise ImproperlyConfigured(
+        "DJANGO_SESSION_COOKIE_SECURE must be True in production."
+    )
+
+if IS_PRODUCTION and not CSRF_COOKIE_SECURE:
+    raise ImproperlyConfigured(
+        "DJANGO_CSRF_COOKIE_SECURE must be True in production."
+    )
+
+SECURE_HSTS_SECONDS = env.int(
+    "DJANGO_SECURE_HSTS_SECONDS",
+    default=0,
+)
+
+if SECURE_HSTS_SECONDS < 0:
+    raise ImproperlyConfigured(
+        "DJANGO_SECURE_HSTS_SECONDS must not be negative."
+    )
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS",
+    default=False,
+)
+
+SECURE_HSTS_PRELOAD = env.bool(
+    "DJANGO_SECURE_HSTS_PRELOAD",
+    default=False,
 )
 
 

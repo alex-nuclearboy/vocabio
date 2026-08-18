@@ -42,12 +42,13 @@ Optional.
 Controls Django debug mode. The application default is ``False``. The local
 ``.env.example`` value is ``True``.
 
-Debug mode should be enabled only in a development environment.
+Debug mode should be enabled only in a development environment. When it is
+``False``, production security validation is applied.
 
 ``DJANGO_ALLOWED_HOSTS``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Optional.
+Required in production.
 
 Contains a comma-separated list of hostnames or IP addresses accepted by
 Django. The application default is an empty list.
@@ -64,6 +65,99 @@ address ``::1``.
 
 Values must contain hostnames or IP addresses only, without URL schemes,
 paths, or trailing slashes.
+
+When ``DJANGO_DEBUG`` is ``False``, the list must not be empty and must not
+contain the wildcard value ``*``.
+
+``DJANGO_CSRF_TRUSTED_ORIGINS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Contains a comma-separated list of trusted origins for unsafe requests such
+as ``POST`` requests protected by Django's CSRF validation.
+
+Origins must include the URL scheme. Trailing slashes are removed when the
+configuration is loaded.
+
+The local ``.env.example`` value is empty because normal local development
+does not require additional trusted origins.
+
+``DJANGO_SECURE_SSL_REDIRECT``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Controls whether Django redirects HTTP requests to HTTPS. The default value
+is ``False``.
+
+The local ``.env.example`` value is also ``False`` because the development
+server normally uses HTTP.
+
+This setting should be enabled only when HTTPS and reverse-proxy handling
+have been configured correctly in the deployment environment.
+
+The project is configured to recognise HTTPS requests forwarded by a trusted
+reverse proxy through the ``X-Forwarded-Proto`` header.
+
+``DJANGO_SESSION_COOKIE_SECURE``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional during local development and required to be ``True`` in production.
+
+Controls whether the session cookie is transmitted only over HTTPS. The
+default value is ``False``.
+
+The local ``.env.example`` value is ``False``.
+
+When ``DJANGO_DEBUG`` is ``False``, this setting must be ``True``. Otherwise,
+the application raises a configuration error during startup.
+
+``DJANGO_CSRF_COOKIE_SECURE``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional during local development and required to be ``True`` in production.
+
+Controls whether the CSRF cookie is transmitted only over HTTPS. The default
+value is ``False``.
+
+The local ``.env.example`` value is ``False``.
+
+When ``DJANGO_DEBUG`` is ``False``, this setting must be ``True``. Otherwise,
+the application raises a configuration error during startup.
+
+``DJANGO_SECURE_HSTS_SECONDS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Defines the HTTP Strict Transport Security duration in seconds. The default
+value is ``0``, which disables HSTS.
+
+Negative values are rejected.
+
+The local ``.env.example`` value is ``0``. HSTS should remain disabled until
+HTTPS behaviour has been verified in the deployment environment.
+
+``DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Controls whether the HSTS policy also applies to subdomains. The default
+value is ``False``.
+
+The local ``.env.example`` value is also ``False``.
+
+``DJANGO_SECURE_HSTS_PRELOAD``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Optional.
+
+Controls whether Django adds the HSTS preload directive to the
+``Strict-Transport-Security`` header. The default value is ``False``.
+
+The local ``.env.example`` value is also ``False``.
 
 Local PostgreSQL variables
 --------------------------
@@ -234,6 +328,27 @@ The local environment currently uses:
      - Optional
    * - ``DJANGO_ALLOWED_HOSTS``
      - ``localhost,127.0.0.1,[::1]``
+     - Required in production
+   * - ``DJANGO_CSRF_TRUSTED_ORIGINS``
+     - Empty
+     - Optional
+   * - ``DJANGO_SECURE_SSL_REDIRECT``
+     - ``False``
+     - Optional
+   * - ``DJANGO_SESSION_COOKIE_SECURE``
+     - ``False``
+     - Required as ``True`` in production
+   * - ``DJANGO_CSRF_COOKIE_SECURE``
+     - ``False``
+     - Required as ``True`` in production
+   * - ``DJANGO_SECURE_HSTS_SECONDS``
+     - ``0``
+     - Optional
+   * - ``DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS``
+     - ``False``
+     - Optional
+   * - ``DJANGO_SECURE_HSTS_PRELOAD``
+     - ``False``
      - Optional
    * - ``POSTGRES_DB``
      - ``vocabio``

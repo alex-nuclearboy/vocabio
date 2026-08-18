@@ -26,6 +26,15 @@ def load_settings_module(
     """Load the settings module with controlled environment values."""
     environment = {
         "DJANGO_SECRET_KEY": "test-secret-key",
+        "DJANGO_DEBUG": "False",
+        "DJANGO_ALLOWED_HOSTS": "localhost,testserver",
+        "DJANGO_CSRF_TRUSTED_ORIGINS": "",
+        "DJANGO_SECURE_SSL_REDIRECT": "False",
+        "DJANGO_SESSION_COOKIE_SECURE": "True",
+        "DJANGO_CSRF_COOKIE_SECURE": "True",
+        "DJANGO_SECURE_HSTS_SECONDS": "0",
+        "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS": "False",
+        "DJANGO_SECURE_HSTS_PRELOAD": "False",
         "DATABASE_URL": VALID_DATABASE_URL,
         "DATABASE_CONN_MAX_AGE": "0",
         "DATABASE_CONN_HEALTH_CHECKS": "False",
@@ -323,6 +332,136 @@ class TestBuildDatabaseConfig:
                 conn_max_age=0,
                 conn_health_checks=False,
                 connect_timeout=5,
+            )
+
+
+# ---------------------------------------------------------------------------
+# Security configuration
+# ---------------------------------------------------------------------------
+
+
+class TestSecurityConfiguration:
+    """Tests for security-related Django settings."""
+
+    def test_rejects_empty_allowed_hosts_in_production(
+        self,
+        monkeypatch,
+    ):
+        """Require allowed hosts when debug mode is disabled."""
+        with pytest.raises(
+            ImproperlyConfigured,
+            match="DJANGO_ALLOWED_HOSTS must be configured",
+        ):
+            load_settings_module(
+                monkeypatch,
+                {
+                    "DJANGO_DEBUG": "False",
+                    "DJANGO_ALLOWED_HOSTS": "",
+                },
+            )
+
+    def test_rejects_wildcard_allowed_host_in_production(
+        self,
+        monkeypatch,
+    ):
+        """Reject a wildcard allowed host in production."""
+        with pytest.raises(
+            ImproperlyConfigured,
+            match=r"DJANGO_ALLOWED_HOSTS must not contain '\*'",
+        ):
+            load_settings_module(
+                monkeypatch,
+                {
+                    "DJANGO_DEBUG": "False",
+                    "DJANGO_ALLOWED_HOSTS": "*",
+                },
+            )
+
+    def test_normalises_csrf_trusted_origins(
+        self,
+        monkeypatch,
+    ):
+        """Remove trailing slashes from trusted CSRF origins."""
+        module = load_settings_module(
+            monkeypatch,
+            {
+                "DJANGO_CSRF_TRUSTED_ORIGINS": (
+                    "https://example.com/,https://www.example.com/"
+                ),
+            },
+        )
+
+        assert module.CSRF_TRUSTED_ORIGINS == [
+            "https://example.com",
+            "https://www.example.com",
+        ]
+
+    def test_requires_secure_session_cookie_in_production(
+        self,
+        monkeypatch,
+    ):
+        """Require secure session cookies in production."""
+        with pytest.raises(
+            ImproperlyConfigured,
+            match="DJANGO_SESSION_COOKIE_SECURE must be True",
+        ):
+            load_settings_module(
+                monkeypatch,
+                {
+                    "DJANGO_DEBUG": "False",
+                    "DJANGO_SESSION_COOKIE_SECURE": "False",
+                },
+            )
+
+    def test_requires_secure_csrf_cookie_in_production(
+        self,
+        monkeypatch,
+    ):
+        """Require secure CSRF cookies in production."""
+        with pytest.raises(
+            ImproperlyConfigured,
+            match="DJANGO_CSRF_COOKIE_SECURE must be True",
+        ):
+            load_settings_module(
+                monkeypatch,
+                {
+                    "DJANGO_DEBUG": "False",
+                    "DJANGO_CSRF_COOKIE_SECURE": "False",
+                },
+            )
+
+    def test_allows_insecure_cookies_during_development(
+        self,
+        monkeypatch,
+    ):
+        """Allow non-secure cookies when debug mode is enabled."""
+        module = load_settings_module(
+            monkeypatch,
+            {
+                "DJANGO_DEBUG": "True",
+                "DJANGO_SESSION_COOKIE_SECURE": "False",
+                "DJANGO_CSRF_COOKIE_SECURE": "False",
+            },
+        )
+
+        assert module.IS_PRODUCTION is False
+        assert module.SESSION_COOKIE_SECURE is False
+        assert module.CSRF_COOKIE_SECURE is False
+
+    def test_rejects_negative_hsts_seconds(
+        self,
+        monkeypatch,
+    ):
+        """Reject a negative HSTS duration."""
+        with pytest.raises(
+            ImproperlyConfigured,
+            match="DJANGO_SECURE_HSTS_SECONDS must not be negative",
+        ):
+            load_settings_module(
+                monkeypatch,
+                {
+                    "DJANGO_SECURE_HSTS_SECONDS": "-1",
+                },
             )
 
 

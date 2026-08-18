@@ -19,6 +19,13 @@ env:
   DJANGO_SECRET_KEY: "ci-only-secret-key-h6-unp6$s)%%2ck5ug*8e9+c^)m+n=1hd$z4=s16soupcoa2&+"
   DJANGO_DEBUG: "False"
   DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
+  DJANGO_CSRF_TRUSTED_ORIGINS: ""
+  DJANGO_SECURE_SSL_REDIRECT: "False"
+  DJANGO_SESSION_COOKIE_SECURE: "True"
+  DJANGO_CSRF_COOKIE_SECURE: "True"
+  DJANGO_SECURE_HSTS_SECONDS: "0"
+  DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS: "False"
+  DJANGO_SECURE_HSTS_PRELOAD: "False"
 
   DATABASE_URL: "postgresql://vocabio:vocabio@127.0.0.1:5432/vocabio"
   DATABASE_CONN_MAX_AGE: "0"
