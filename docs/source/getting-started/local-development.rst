@@ -132,9 +132,13 @@ Start the Django development server:
 
    poetry run python manage.py runserver
 
-Open the application in your browser:
+Open the Django administration page in your browser:
 
-`http://127.0.0.1:8000/ <http://127.0.0.1:8000/>`_
+`http://127.0.0.1:8000/admin/ <http://127.0.0.1:8000/admin/>`_
+
+The application root currently returns ``404 Not Found`` because Vocabio
+does not define a root application route yet. This is expected until the
+application layer is introduced.
 
 The development server keeps the current terminal occupied while it is
 running. Stop it with ``Ctrl+C``.
