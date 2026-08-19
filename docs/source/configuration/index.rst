@@ -1,10 +1,11 @@
 Configuration
 =============
 
-This section documents the configuration used by Vocabio.
+This section documents the environment and database configuration used by
+Vocabio in local development and deployment environments.
 
-Environment variables and their defaults are described separately from the
-database configuration and validation rules.
+Environment variables, defaults, and production requirements are described
+separately from PostgreSQL connection configuration and validation rules.
 
 .. toctree::
    :maxdepth: 1

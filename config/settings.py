@@ -338,7 +338,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = get_str_env(
     "DJANGO_LANGUAGE_CODE",
-    default="en-us",
+    default="en-gb",
 )
 
 TIME_ZONE = get_str_env(

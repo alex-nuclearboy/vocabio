@@ -261,12 +261,18 @@ The default value is ``0``.
 A value of ``0`` closes the connection at the end of each request. Negative
 values are rejected.
 
+The local ``.env.example`` value is ``0``. The current production Koyeb
+configuration uses ``30``.
+
 ``DATABASE_CONN_HEALTH_CHECKS``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Optional.
 
 Controls Django connection health checks. The default value is ``False``.
+
+The local ``.env.example`` value is ``False``. The current production Koyeb
+configuration uses ``True``.
 
 ``DATABASE_CONNECT_TIMEOUT``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -308,8 +314,49 @@ The local ``.env.example`` value is also:
 
 Use a valid IANA time zone name when changing this value.
 
-Configuration summary
----------------------
+Production deployment values
+----------------------------
+
+The production Koyeb Service uses the same Django environment-variable
+contract with deployment-specific values.
+
+The current production configuration uses:
+
+.. code-block:: text
+
+   DJANGO_DEBUG=False
+   DJANGO_ALLOWED_HOSTS={{ KOYEB_PUBLIC_DOMAIN }}
+   DJANGO_CSRF_TRUSTED_ORIGINS=https://{{ KOYEB_PUBLIC_DOMAIN }}
+
+   DJANGO_SECURE_SSL_REDIRECT=True
+   DJANGO_SESSION_COOKIE_SECURE=True
+   DJANGO_CSRF_COOKIE_SECURE=True
+
+   DJANGO_SECURE_HSTS_SECONDS=0
+   DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=False
+   DJANGO_SECURE_HSTS_PRELOAD=False
+
+   DATABASE_CONN_MAX_AGE=30
+   DATABASE_CONN_HEALTH_CHECKS=True
+   DATABASE_CONNECT_TIMEOUT=5
+
+   DJANGO_LANGUAGE_CODE=en-gb
+   DJANGO_TIME_ZONE=UTC
+
+``DJANGO_SECRET_KEY`` and ``DATABASE_URL`` also remain required in
+production, but their values are supplied through Koyeb Secrets and must
+not be stored in repository documentation.
+
+``DIRECT_DATABASE_URL`` is also present in the Koyeb Service environment,
+but it is not read by the Django settings module. It is reserved for
+controlled production database operations.
+
+The complete Koyeb Service configuration is documented in
+:doc:`../deployment/koyeb`, while production database operations are
+documented in :doc:`../deployment/operations`.
+
+Local configuration summary
+---------------------------
 
 The local environment currently uses:
 

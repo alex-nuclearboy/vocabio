@@ -110,6 +110,50 @@ When the database URL already defines database options, the project preserves
 those options. The configured ``connect_timeout`` is added only when that
 option is not already present.
 
+Production database connections
+-------------------------------
+
+The deployed application uses Neon PostgreSQL 18.
+
+The production environment has two database connection strings:
+
+* a pooled connection exposed as ``DATABASE_URL``;
+* a direct connection exposed as ``DIRECT_DATABASE_URL``.
+
+The normal Django application reads only ``DATABASE_URL``. The deployed
+Koyeb Web Service therefore uses the pooled Neon connection for normal web
+traffic.
+
+``DIRECT_DATABASE_URL`` is not a second Django database alias and is not
+read automatically by ``config/settings.py``. It is reserved for migrations
+and other controlled production database operations.
+
+For an administrative command, the direct connection is substituted for
+``DATABASE_URL`` only for that process:
+
+.. code-block:: console
+
+   DATABASE_URL="$DIRECT_DATABASE_URL" python manage.py <command>
+
+The current production connection settings are:
+
+.. code-block:: text
+
+   DATABASE_CONN_MAX_AGE=30
+   DATABASE_CONN_HEALTH_CHECKS=True
+   DATABASE_CONNECT_TIMEOUT=5
+
+The pooled and direct Neon connection strings target the same production
+branch, database, and role. The pooled hostname contains ``-pooler``, while
+the direct hostname does not.
+
+Do not reconstruct or edit Neon connection strings manually. Keep all
+connection parameters supplied by Neon.
+
+The Neon project and connection-string setup are documented in
+:doc:`../deployment/neon`. Production management commands are documented in
+:doc:`../deployment/operations`.
+
 Docker Compose database
 -----------------------
 
@@ -145,5 +189,10 @@ is documented in :doc:`../getting-started/local-development`.
 Related configuration
 ---------------------
 
-For the complete environment variable reference, see
+For the complete Django environment-variable reference, see
 :doc:`environment`.
+
+For the production Neon configuration, see :doc:`../deployment/neon`.
+
+For production database operations, see
+:doc:`../deployment/operations`.

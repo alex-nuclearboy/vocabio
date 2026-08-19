@@ -2,8 +2,9 @@ Project structure
 =================
 
 Vocabio follows a conventional Django project layout with project
-configuration, automated tests, development tooling, documentation, and
-local infrastructure kept as separate repository components.
+configuration, automated tests, development tooling, documentation,
+deployment configuration, and local infrastructure kept as separate
+repository components.
 
 The current project foundation has the following structure:
 
@@ -22,6 +23,7 @@ The current project foundation has the following structure:
    ├── docs/
    │   ├── source/
    │   │   ├── configuration/
+   │   │   ├── deployment/
    │   │   ├── development/
    │   │   ├── getting-started/
    │   │   ├── project/
@@ -38,6 +40,7 @@ The current project foundation has the following structure:
    ├── .gitignore
    ├── .python-version
    ├── LICENSE
+   ├── Procfile
    ├── README.md
    ├── compose.yaml
    ├── manage.py
@@ -159,6 +162,7 @@ The documentation directory is organised as follows:
    docs/
    ├── source/
    │   ├── configuration/
+   │   ├── deployment/
    │   ├── development/
    │   ├── getting-started/
    │   ├── project/
@@ -191,6 +195,14 @@ Documents testing, code-quality checks, dependency auditing, and continuous
 integration.
 
 See :doc:`../development/index`.
+
+``deployment``
+~~~~~~~~~~~~~~
+
+Documents the production deployment on Koyeb, the Neon PostgreSQL
+configuration, and routine deployment operations.
+
+See :doc:`../deployment/index`.
 
 ``project``
 ~~~~~~~~~~~
@@ -239,6 +251,21 @@ requiring PostgreSQL to be installed directly on the host system.
 Database configuration is documented in
 :doc:`../configuration/database`, and the normal start and stop workflow is
 documented in :doc:`../getting-started/local-development`.
+
+Production process
+------------------
+
+``Procfile`` defines the production web process used by the Koyeb
+deployment.
+
+The current process is:
+
+.. code-block:: text
+
+   web: gunicorn --bind 0.0.0.0:$PORT config.wsgi
+
+Koyeb-specific build and runtime configuration is documented in
+:doc:`../deployment/koyeb`.
 
 Python runtime
 --------------
@@ -318,4 +345,5 @@ See also:
 * :doc:`../getting-started/index`
 * :doc:`../configuration/index`
 * :doc:`../development/index`
+* :doc:`../deployment/index`
 * :doc:`../reference/index`
