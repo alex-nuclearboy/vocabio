@@ -95,6 +95,9 @@ jobs:
       - name: Run Django checks
         run: poetry run python manage.py check
 
+      - name: Collect static files
+        run: poetry run python manage.py collectstatic --noinput
+
       - name: Run tests with coverage
         run: poetry run pytest
 
