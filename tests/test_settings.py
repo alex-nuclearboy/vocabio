@@ -39,6 +39,8 @@ def load_settings_module(
         "DATABASE_CONN_MAX_AGE": "0",
         "DATABASE_CONN_HEALTH_CHECKS": "False",
         "DATABASE_CONNECT_TIMEOUT": "5",
+        "DJANGO_LANGUAGE_CODE": "en-gb",
+        "DJANGO_TIME_ZONE": "UTC",
     }
 
     if env_overrides:
