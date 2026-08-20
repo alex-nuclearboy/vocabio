@@ -598,25 +598,11 @@ class TestModuleLevelValidation:
                 },
             )
 
-    @pytest.mark.parametrize(
-        "database_url",
-        [
-            (
-                "postgresql://user:pass@"
-                "${VOCABIO_MISSING_HOST}:5432/vocabio"
-            ),
-            (
-                "postgresql://user:pass@"
-                "$VOCABIO_MISSING_HOST:5432/vocabio"
-            ),
-        ],
-    )
     def test_rejects_unresolved_environment_variable(
         self,
         monkeypatch,
-        database_url,
     ):
-        """Reject unresolved variables in the database URL."""
+        """Reject an unresolved braced variable in the database URL."""
         monkeypatch.delenv(
             "VOCABIO_MISSING_HOST",
             raising=False,
@@ -629,7 +615,10 @@ class TestModuleLevelValidation:
             load_settings_module(
                 monkeypatch,
                 {
-                    "DATABASE_URL": database_url,
+                    "DATABASE_URL": (
+                        "postgresql://user:pass@"
+                        "${VOCABIO_MISSING_HOST}:5432/vocabio"
+                    ),
                 },
             )
 
@@ -655,6 +644,30 @@ class TestModuleLevelValidation:
 
         assert module.DATABASE_URL == VALID_DATABASE_URL
         assert module.DATABASES["default"]["HOST"] == "localhost"
+
+    def test_preserves_dollar_sign_in_database_password(
+        self,
+        monkeypatch,
+    ):
+        """Preserve dollar-prefixed text in database passwords."""
+        monkeypatch.setenv(
+            "word123",
+            "unexpected-value",
+        )
+
+        module = load_settings_module(
+            monkeypatch,
+            {
+                "DATABASE_URL": (
+                    "postgresql://user:p$word123@localhost:5432/vocabio"
+                ),
+            },
+        )
+
+        assert module.DATABASE_URL == (
+            "postgresql://user:p$word123@localhost:5432/vocabio"
+        )
+        assert module.DATABASES["default"]["PASSWORD"] == "p$word123"
 
     def test_rejects_negative_connection_max_age(
         self,

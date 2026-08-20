@@ -251,8 +251,8 @@ The local ``.env.example`` value is assembled from the PostgreSQL variables:
 
    DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
 
-Environment-variable references are expanded before Django builds the
-database configuration.
+Environment-variable references using the ``${VARIABLE}`` syntax are
+expanded before Django builds the database configuration.
 
 Detailed URL validation rules are documented in
 :doc:`database`.

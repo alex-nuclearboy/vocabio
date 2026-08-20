@@ -29,6 +29,29 @@ env = environ.Env()
 
 environ.Env.read_env(BASE_DIR / ".env")
 
+DATABASE_ENV_REFERENCE_PATTERN = re.compile(
+    r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}"
+)
+
+
+def expand_database_url(database_url: str) -> str:
+    """Expand braced environment references in a database URL."""
+
+    def replace_reference(match: re.Match[str]) -> str:
+        variable_name = match.group(1)
+
+        try:
+            return os.environ[variable_name]
+        except KeyError as exc:
+            raise ImproperlyConfigured(
+                "DATABASE_URL contains unresolved environment variables."
+            ) from exc
+
+    return DATABASE_ENV_REFERENCE_PATTERN.sub(
+        replace_reference,
+        database_url,
+    )
+
 
 def get_str_env(name: str, default: str) -> str:
     """Return a stripped environment variable or its default value."""
@@ -264,22 +287,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # ---------------------------------------------------------------------------
 
-DATABASE_URL = os.path.expandvars(
-    env("DATABASE_URL").strip()
-)
+DATABASE_URL = env("DATABASE_URL").strip()
 
 if not DATABASE_URL:
     raise ImproperlyConfigured(
         "DATABASE_URL must not be empty."
     )
 
-if re.search(
-    r"\$(?:\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)",
-    DATABASE_URL,
-):
-    raise ImproperlyConfigured(
-        "DATABASE_URL contains unresolved environment variables."
-    )
+DATABASE_URL = expand_database_url(DATABASE_URL)
 
 DATABASE_CONN_MAX_AGE = env.int(
     "DATABASE_CONN_MAX_AGE",

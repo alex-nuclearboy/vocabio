@@ -63,8 +63,9 @@ Configuration fails when:
 * a required connection value is missing;
 * an environment-variable reference remains unresolved.
 
-Both ``$VARIABLE`` and ``${VARIABLE}`` references are considered unresolved
-if they remain in the expanded URL.
+Environment-variable interpolation in ``DATABASE_URL`` uses the explicit
+``${VARIABLE}`` syntax. Unbraced dollar-prefixed text is treated as literal
+URL content.
 
 Connection lifetime
 -------------------
