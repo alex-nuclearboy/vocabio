@@ -110,6 +110,21 @@ When the database URL already defines database options, the project preserves
 those options. The configured ``connect_timeout`` is added only when that
 option is not already present.
 
+Server-side cursors
+-------------------
+
+Vocabio disables PostgreSQL server-side cursors when the configured
+``DATABASE_URL`` uses a Neon pooled endpoint, identified by the ``-pooler``
+suffix in the database hostname. Direct PostgreSQL connections retain
+Django's normal server-side cursor behaviour.
+
+Neon pooled connections use PgBouncer in transaction pooling mode.
+Server-side cursors cannot safely persist across transactions when
+subsequent transactions can use different PostgreSQL connections.
+
+Disabling server-side cursors keeps Django database behaviour compatible
+with the production connection-pooling strategy.
+
 Production database connections
 -------------------------------
 

@@ -94,6 +94,9 @@ def build_database_config(
 
     database_config["CONN_MAX_AGE"] = conn_max_age
     database_config["CONN_HEALTH_CHECKS"] = conn_health_checks
+    database_config["DISABLE_SERVER_SIDE_CURSORS"] = (
+        "-pooler" in (parsed_url.hostname or "")
+    )
 
     database_options = database_config.get("OPTIONS") or {}
 

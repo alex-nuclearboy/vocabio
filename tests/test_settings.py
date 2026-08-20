@@ -164,6 +164,37 @@ class TestBuildDatabaseConfig:
         assert config["CONN_HEALTH_CHECKS"] is True
         assert config["OPTIONS"]["connect_timeout"] == 5
 
+    def test_disables_server_side_cursors_for_pooled_connection(
+        self,
+        settings_module,
+    ):
+        """Disable server-side cursors for a pooled connection."""
+        config = settings_module.build_database_config(
+            database_url=(
+                "postgresql://user:pass@"
+                "example-pooler.eu-central-1.aws.neon.tech/vocabio"
+            ),
+            conn_max_age=30,
+            conn_health_checks=True,
+            connect_timeout=5,
+        )
+
+        assert config["DISABLE_SERVER_SIDE_CURSORS"] is True
+
+    def test_keeps_server_side_cursors_for_direct_connection(
+        self,
+        settings_module,
+    ):
+        """Keep server-side cursors available for direct connections."""
+        config = settings_module.build_database_config(
+            database_url=VALID_DATABASE_URL,
+            conn_max_age=0,
+            conn_health_checks=False,
+            connect_timeout=5,
+        )
+
+        assert config["DISABLE_SERVER_SIDE_CURSORS"] is False
+
     @pytest.mark.parametrize(
         "database_url",
         [
