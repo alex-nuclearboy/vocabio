@@ -1,6 +1,7 @@
 """Sphinx configuration for the Vocabio documentation."""
 
 # pylint: disable=invalid-name,redefined-builtin
+# pylint: disable=duplicate-code
 
 import os
 import sys
