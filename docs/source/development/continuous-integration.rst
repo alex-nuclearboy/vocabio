@@ -188,6 +188,19 @@ The workflow runs:
 
    poetry run python manage.py check
 
+Migration consistency
+~~~~~~~~~~~~~~~~~~~~~
+
+The primary CI job checks that model changes are represented by committed
+Django migrations:
+
+.. code-block:: console
+
+   poetry run python manage.py makemigrations --check --dry-run
+
+The command fails if Django detects model changes that require new
+migrations. It does not create migration files during CI.
+
 Static-file collection
 ~~~~~~~~~~~~~~~~~~~~~~
 

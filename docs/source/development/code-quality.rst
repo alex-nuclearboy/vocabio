@@ -1,8 +1,9 @@
 Code quality
 ============
 
-Vocabio uses automated static analysis, Django system checks, dependency
-auditing, and the test suite to maintain code quality.
+Vocabio uses automated static analysis, Django system checks, migration
+consistency checks, dependency auditing, and the test suite to maintain code
+quality.
 
 The commands in this document are intended to be run from the repository
 root.
@@ -71,6 +72,18 @@ configuration or application problems.
 A PostgreSQL service must be available when a system check requires a
 database connection. Local database setup is documented in
 :doc:`../getting-started/local-development`.
+
+Migration consistency
+---------------------
+
+Check that model changes are represented by committed Django migrations:
+
+.. code-block:: console
+
+   poetry run python manage.py makemigrations --check --dry-run
+
+The command exits with a non-zero status if Django detects model changes
+that require new migrations. It does not create migration files.
 
 Static-file collection
 ----------------------
@@ -144,6 +157,7 @@ The complete local quality-check sequence is:
    poetry run python -m pip_audit --local
    poetry run pylint config tests manage.py docs/source/conf.py
    poetry run python manage.py check
+   poetry run python manage.py makemigrations --check --dry-run
    poetry run python manage.py collectstatic --noinput
    poetry run pytest
    poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
