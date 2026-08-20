@@ -114,7 +114,10 @@ def build_database_config(
 # Core security settings
 # ---------------------------------------------------------------------------
 
-SECRET_KEY = env("DJANGO_SECRET_KEY").strip()
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "",
+).strip()
 
 if not SECRET_KEY:
     raise ImproperlyConfigured(

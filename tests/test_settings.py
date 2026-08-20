@@ -558,6 +558,20 @@ class TestSecurityConfiguration:
 class TestModuleLevelValidation:
     """Tests for validation during settings initialisation."""
 
+    def test_preserves_secret_key_starting_with_dollar_sign(
+        self,
+        monkeypatch,
+    ):
+        """Preserve a secret key that begins with a dollar sign."""
+        module = load_settings_module(
+            monkeypatch,
+            {
+                "DJANGO_SECRET_KEY": "$literal-secret-key",
+            },
+        )
+
+        assert module.SECRET_KEY == "$literal-secret-key"
+
     def test_rejects_empty_secret_key(self, monkeypatch):
         """Reject an empty Django secret key."""
         with pytest.raises(
