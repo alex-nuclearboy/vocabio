@@ -29,7 +29,7 @@ def load_settings_module(
         "DJANGO_DEBUG": "False",
         "DJANGO_ALLOWED_HOSTS": "localhost,testserver",
         "DJANGO_CSRF_TRUSTED_ORIGINS": "",
-        "DJANGO_SECURE_SSL_REDIRECT": "False",
+        "DJANGO_SECURE_SSL_REDIRECT": "True",
         "DJANGO_SESSION_COOKIE_SECURE": "True",
         "DJANGO_CSRF_COOKIE_SECURE": "True",
         "DJANGO_SECURE_HSTS_SECONDS": "0",
@@ -408,16 +408,36 @@ class TestSecurityConfiguration:
                 },
             )
 
+    def test_normalises_allowed_hosts(
+        self,
+        monkeypatch,
+    ):
+        """Strip whitespace from allowed host values."""
+        module = load_settings_module(
+            monkeypatch,
+            {
+                "DJANGO_ALLOWED_HOSTS": (
+                    " localhost, 127.0.0.1 , testserver "
+                ),
+            },
+        )
+
+        assert module.ALLOWED_HOSTS == [
+            "localhost",
+            "127.0.0.1",
+            "testserver",
+        ]
+
     def test_normalises_csrf_trusted_origins(
         self,
         monkeypatch,
     ):
-        """Remove trailing slashes from trusted CSRF origins."""
+        """Normalise trusted CSRF origin values."""
         module = load_settings_module(
             monkeypatch,
             {
                 "DJANGO_CSRF_TRUSTED_ORIGINS": (
-                    "https://example.com/,https://www.example.com/"
+                    " https://example.com/ , https://www.example.com/ "
                 ),
             },
         )
@@ -426,6 +446,38 @@ class TestSecurityConfiguration:
             "https://example.com",
             "https://www.example.com",
         ]
+
+    def test_requires_https_redirect_in_production(
+        self,
+        monkeypatch,
+    ):
+        """Require HTTPS redirection in production."""
+        with pytest.raises(
+            ImproperlyConfigured,
+            match="DJANGO_SECURE_SSL_REDIRECT must be True",
+        ):
+            load_settings_module(
+                monkeypatch,
+                {
+                    "DJANGO_SECURE_SSL_REDIRECT": "False",
+                },
+            )
+
+    def test_allows_http_during_development(
+        self,
+        monkeypatch,
+    ):
+        """Allow disabled HTTPS redirection during development."""
+        module = load_settings_module(
+            monkeypatch,
+            {
+                "DJANGO_DEBUG": "True",
+                "DJANGO_SECURE_SSL_REDIRECT": "False",
+            },
+        )
+
+        assert module.IS_PRODUCTION is False
+        assert module.SECURE_SSL_REDIRECT is False
 
     def test_requires_secure_session_cookie_in_production(
         self,

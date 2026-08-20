@@ -128,10 +128,14 @@ DEBUG = env.bool(
 
 IS_PRODUCTION = not DEBUG
 
-ALLOWED_HOSTS = env.list(
-    "DJANGO_ALLOWED_HOSTS",
-    default=[],
-)
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in env.list(
+        "DJANGO_ALLOWED_HOSTS",
+        default=[],
+    )
+    if host.strip()
+]
 
 if IS_PRODUCTION and not ALLOWED_HOSTS:
     raise ImproperlyConfigured(
@@ -145,11 +149,12 @@ if IS_PRODUCTION and "*" in ALLOWED_HOSTS:
     )
 
 CSRF_TRUSTED_ORIGINS = [
-    origin.rstrip("/")
+    origin.strip().rstrip("/")
     for origin in env.list(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
         default=[],
     )
+    if origin.strip()
 ]
 
 SECURE_PROXY_SSL_HEADER = (
@@ -161,6 +166,11 @@ SECURE_SSL_REDIRECT = env.bool(
     "DJANGO_SECURE_SSL_REDIRECT",
     default=False,
 )
+
+if IS_PRODUCTION and not SECURE_SSL_REDIRECT:
+    raise ImproperlyConfigured(
+        "DJANGO_SECURE_SSL_REDIRECT must be True in production."
+    )
 
 SESSION_COOKIE_SECURE = env.bool(
     "DJANGO_SESSION_COOKIE_SECURE",

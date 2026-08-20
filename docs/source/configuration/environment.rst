@@ -66,6 +66,9 @@ address ``::1``.
 Values must contain hostnames or IP addresses only, without URL schemes,
 paths, or trailing slashes.
 
+Surrounding whitespace is removed from individual values when the
+configuration is loaded.
+
 When ``DJANGO_DEBUG`` is ``False``, the list must not be empty and must not
 contain the wildcard value ``*``.
 
@@ -77,8 +80,8 @@ Optional.
 Contains a comma-separated list of trusted origins for unsafe requests such
 as ``POST`` requests protected by Django's CSRF validation.
 
-Origins must include the URL scheme. Trailing slashes are removed when the
-configuration is loaded.
+Origins must include the URL scheme. Surrounding whitespace and trailing
+slashes are removed when the configuration is loaded.
 
 The local ``.env.example`` value is empty because normal local development
 does not require additional trusted origins.
@@ -86,7 +89,7 @@ does not require additional trusted origins.
 ``DJANGO_SECURE_SSL_REDIRECT``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Optional.
+Optional during local development and required to be ``True`` in production.
 
 Controls whether Django redirects HTTP requests to HTTPS. The default value
 is ``False``.
@@ -94,8 +97,11 @@ is ``False``.
 The local ``.env.example`` value is also ``False`` because the development
 server normally uses HTTP.
 
-This setting should be enabled only when HTTPS and reverse-proxy handling
-have been configured correctly in the deployment environment.
+When ``DJANGO_DEBUG`` is ``False``, this setting must be ``True``. Otherwise,
+the application raises a configuration error during startup.
+
+Production deployment therefore requires working HTTPS and reverse-proxy
+handling before the application is started.
 
 The project is configured to recognise HTTPS requests forwarded by a trusted
 reverse proxy through the ``X-Forwarded-Proto`` header.
@@ -381,7 +387,7 @@ The local environment currently uses:
      - Optional
    * - ``DJANGO_SECURE_SSL_REDIRECT``
      - ``False``
-     - Optional
+     - Required as ``True`` in production
    * - ``DJANGO_SESSION_COOKIE_SECURE``
      - ``False``
      - Required as ``True`` in production
