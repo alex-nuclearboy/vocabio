@@ -184,8 +184,8 @@ files, and creates the final runtime image.
 
 The final runtime image does not contain Poetry.
 
-Do not configure an additional Koyeb Build command for static-file
-collection. The production build process is defined entirely by the Dockerfile.
+The production build process is defined entirely by the repository
+``Dockerfile``.
 
 The container build is documented in :doc:`docker`.
 
@@ -215,9 +215,6 @@ The generated directory is copied into the final runtime image and remains
 excluded from version control.
 
 WhiteNoise serves the collected files from the running Django application.
-
-Do not configure an additional Koyeb Build command for static-file
-collection.
 
 Configure the runtime process
 -----------------------------
