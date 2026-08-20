@@ -87,10 +87,23 @@ Database-dependent tests
 A PostgreSQL database must be available before database-dependent tests are
 run.
 
+The current suite includes ``tests/test_database.py``, which opens a real
+Django database connection, verifies that the configured backend is
+PostgreSQL, and confirms that the connection is usable.
+
+This test ensures that the project exercises the complete Django-to-PostgreSQL
+connection path rather than validating database settings only.
+
 The local PostgreSQL service and its health check are documented in
 :doc:`../configuration/database`. Instructions for starting the local
 database are available in
 :doc:`../getting-started/local-development`.
+
+The database integration test can be run independently with:
+
+.. code-block:: console
+
+   poetry run pytest tests/test_database.py
 
 Tests that do not establish a database connection do not require the local
 PostgreSQL service to be running.

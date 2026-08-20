@@ -35,6 +35,7 @@ The current project foundation has the following structure:
    │   └── make.bat
    ├── tests/
    │   ├── __init__.py
+   │   ├── test_database.py
    │   └── test_settings.py
    ├── .env.example
    ├── .gitignore
@@ -117,7 +118,11 @@ The current foundation includes:
 
    tests/
    ├── __init__.py
+   ├── test_database.py
    └── test_settings.py
+
+``tests/test_database.py`` verifies real Django connectivity to PostgreSQL and
+confirms that the configured connection uses the PostgreSQL backend.
 
 ``tests/test_settings.py`` verifies environment handling and project
 configuration, including PostgreSQL database URL validation and related

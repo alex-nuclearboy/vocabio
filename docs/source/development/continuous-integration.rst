@@ -188,6 +188,18 @@ The workflow runs:
 
    poetry run python manage.py check
 
+Static-file collection
+~~~~~~~~~~~~~~~~~~~~~~
+
+The workflow verifies production static-file processing with:
+
+.. code-block:: console
+
+   poetry run python manage.py collectstatic --noinput
+
+This exercises the configured Django static-file storage and WhiteNoise
+manifest processing before the test suite is executed.
+
 Test suite
 ~~~~~~~~~~
 

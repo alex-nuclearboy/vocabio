@@ -207,8 +207,9 @@ Required for the local Docker Compose environment.
 Contains the password for the local PostgreSQL role. The value is
 intentionally empty in ``.env.example``.
 
-Because the same raw value is interpolated into ``DATABASE_URL``, use
-URL-safe characters unless the value is explicitly URL-encoded.
+Because the same raw value is supplied to PostgreSQL and interpolated into
+``DATABASE_URL``, use a sufficiently long password containing letters,
+digits, hyphens, and underscores.
 
 ``POSTGRES_HOST``
 ~~~~~~~~~~~~~~~~~

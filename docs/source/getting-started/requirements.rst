@@ -17,7 +17,9 @@ Poetry
 
 Python dependencies and the project environment are managed with Poetry.
 
-The project currently uses Poetry 2.4.1.
+Local development and continuous integration currently use Poetry 2.4.1.
+The Koyeb buildpack manages its own Poetry version independently during
+production builds.
 
 Git
 ---

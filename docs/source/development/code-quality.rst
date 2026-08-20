@@ -72,6 +72,19 @@ A PostgreSQL service must be available when a system check requires a
 database connection. Local database setup is documented in
 :doc:`../getting-started/local-development`.
 
+Static-file collection
+----------------------
+
+Verify production static-file processing with:
+
+.. code-block:: console
+
+   poetry run python manage.py collectstatic --noinput
+
+The command exercises the configured static-file storage and WhiteNoise
+manifest processing. The generated ``staticfiles/`` directory is excluded
+from version control.
+
 Test suite
 ----------
 
@@ -131,6 +144,7 @@ The complete local quality-check sequence is:
    poetry run python -m pip_audit --local
    poetry run pylint config tests manage.py docs/source/conf.py
    poetry run python manage.py check
+   poetry run python manage.py collectstatic --noinput
    poetry run pytest
    poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
 
