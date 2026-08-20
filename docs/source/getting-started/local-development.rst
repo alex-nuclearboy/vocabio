@@ -12,6 +12,13 @@ The complete environment variable reference is available in
 validation rules are documented in
 :doc:`../configuration/database`.
 
+The repository Dockerfile defines the production container image but does
+not replace the standard local development workflow.
+
+During local development, Django runs from the Poetry environment on the host
+while PostgreSQL runs through Docker Compose. The current ``compose.yaml``
+therefore defines only the PostgreSQL service.
+
 Create the local environment file
 ---------------------------------
 

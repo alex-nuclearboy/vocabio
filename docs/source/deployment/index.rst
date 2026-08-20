@@ -8,5 +8,6 @@ provided by Neon.
    :maxdepth: 1
 
    neon
+   docker
    koyeb
    operations

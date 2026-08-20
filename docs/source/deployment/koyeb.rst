@@ -7,7 +7,7 @@ Overview
 Vocabio uses Koyeb to build and run the hosted Django web application.
 
 This guide documents the Koyeb Service configuration used by Vocabio,
-including GitHub deployment, the Python buildpack, the Gunicorn runtime
+including GitHub deployment, the Dockerfile builder, the Gunicorn runtime
 process, production environment variables, Koyeb Secrets, and deployment
 verification.
 
@@ -16,9 +16,9 @@ The deployment uses:
 * a Koyeb Web Service;
 * a GitHub repository as the deployment source;
 * the ``main`` branch as the deployed branch;
-* the Python buildpack;
+* the Dockerfile builder;
+* the repository ``Dockerfile`` as the production image definition;
 * Gunicorn as the production WSGI server;
-* the repository ``Procfile`` as the runtime process definition;
 * WhiteNoise for collected static files;
 * Neon PostgreSQL for the application database;
 * Koyeb Secrets for sensitive production values;
@@ -42,9 +42,8 @@ fork owned by the deployer.
 The deployed repository must contain the deployment-ready application,
 including:
 
+* ``Dockerfile`` and ``.dockerignore``;
 * ``poetry.lock`` and ``pyproject.toml``;
-* ``.python-version``;
-* the root ``Procfile``;
 * Gunicorn as a runtime dependency;
 * WhiteNoise static-file configuration;
 * production-safe Django security settings.
@@ -155,14 +154,16 @@ Use:
    * - Work directory
      - Repository root
    * - Builder
-     - Buildpack
+     - Dockerfile
+   * - Dockerfile
+     - ``Dockerfile``
    * - Region
      - Frankfurt
    * - Instance type
      - Free
-   * - Build command
-     - Empty
-   * - Run command override
+   * - Entrypoint override
+     - Disabled
+   * - Command override
      - Disabled
 
 Frankfurt is used for this deployment so that the application runs close to
@@ -172,67 +173,66 @@ The Free Instance is limited to a single region. If the deployment later
 moves to a paid Instance, review the available regions and capacity before
 changing the Service configuration.
 
-Configure the Python build
---------------------------
+Configure the Dockerfile build
+------------------------------
 
-Koyeb detects Vocabio as a Python project from the repository
-``poetry.lock`` file.
+Koyeb builds Vocabio from the repository root ``Dockerfile``.
 
-The repository ``.python-version`` file selects the Python runtime used by
-the buildpack. The current deployment uses Python 3.13.
+The Dockerfile defines the Python runtime, installs Poetry 2.4.1 in a builder
+stage, installs the locked production dependencies, collects Django static
+files, and creates the final runtime image.
 
-The Buildpack builder installs the application runtime dependencies from the
-Poetry lock file and packages the application into a runnable container
-image.
+The final runtime image does not contain Poetry.
 
-Do not configure a custom Koyeb build command for Vocabio.
+Do not configure an additional Koyeb Build command for static-file
+collection. The production build process is defined entirely by the Dockerfile.
+
+The container build is documented in :doc:`docker`.
 
 Static files
 ------------
 
-The current Vocabio buildpack deployment collects Django static files
-automatically during the build.
+The production Dockerfile collects Django static files during the builder
+stage.
 
-The verified build runs:
+The build runs:
 
 .. code-block:: console
 
    python manage.py collectstatic --noinput
 
-Collected files are written to the configured ``STATIC_ROOT`` directory:
+Collected files are written to:
 
 .. code-block:: text
 
    staticfiles/
 
-The directory is generated during the build and remains excluded from
-version control.
+The Docker build uses non-sensitive build-only Django settings for this step.
+Production Koyeb Secrets and the Neon database connection are not required to
+collect static files.
+
+The generated directory is copied into the final runtime image and remains
+excluded from version control.
 
 WhiteNoise serves the collected files from the running Django application.
 
-Do not add another custom ``collectstatic`` command in the Koyeb Build
-command field. A custom build command runs after the automated buildpack
-steps, so adding the same command causes a second, unnecessary
-``collectstatic`` execution.
+Do not configure an additional Koyeb Build command for static-file
+collection.
 
 Configure the runtime process
 -----------------------------
 
-The repository defines the production web process in the root ``Procfile``:
+The production web process is defined by the Dockerfile ``CMD``.
 
-.. code-block:: text
+The image starts Gunicorn and binds it to the port provided through the
+``PORT`` environment variable, falling back to port ``8000`` when the
+variable is unavailable.
 
-   web: gunicorn --bind 0.0.0.0:$PORT config.wsgi
+Koyeb Web Services provide ``PORT`` automatically. When it is not explicitly
+configured, Koyeb sets it to the lowest exposed port.
 
-Gunicorn binds to all container interfaces and listens on the port supplied
-by Koyeb.
-
-Koyeb Web Services provide the ``PORT`` environment variable automatically.
-Do not define ``PORT`` manually for this deployment.
-
-Leave the Koyeb Run command override disabled. When both a Run command
-override and a ``Procfile`` are present, Koyeb gives the Run command
-override precedence over the ``Procfile``.
+Leave the Koyeb entrypoint and command overrides disabled so that the runtime
+process remains defined by the Docker image.
 
 Store production Secrets
 ------------------------
@@ -383,7 +383,7 @@ Configure one public HTTP port:
      - ``/``
 
 Koyeb automatically sets ``PORT`` to the lowest exposed port when it is not
-defined explicitly. The ``Procfile`` reads this value at runtime.
+defined explicitly. The Dockerfile runtime command reads this value at runtime.
 
 Do not define a separate ``PORT`` environment variable.
 
@@ -402,23 +402,24 @@ variables, ports, and routing, select ``Deploy``.
 Koyeb then:
 
 #. clones the configured GitHub revision;
-#. detects the Python application;
-#. restores available build cache;
-#. installs the runtime dependencies;
-#. runs the Django static-file collection step;
-#. creates the runnable container image;
-#. starts the web process defined by the ``Procfile``.
+#. reads the repository Dockerfile;
+#. builds the Docker image;
+#. installs Poetry 2.4.1 in the builder stage;
+#. installs the locked runtime dependencies;
+#. runs Django static-file collection;
+#. creates the final runtime image;
+#. starts the Gunicorn process defined by the Dockerfile.
 
 Follow the deployment stages and build logs from the Service page.
 
-A successful build should show the Python buildpack, dependency
-installation, static-file collection, and the ``web`` process detected from
-the ``Procfile``.
+A successful build should show the Docker build stages, Poetry 2.4.1
+installation, dependency installation, static-file collection, and final
+runtime image creation.
 
 Apply database operations separately
 ------------------------------------
 
-Database migrations are not part of the ``Procfile`` and should not run
+Database migrations are not part of the ``Dockerfile`` and should not run
 automatically whenever Gunicorn starts.
 
 Production migrations are controlled operations and must use the direct
@@ -427,8 +428,8 @@ Neon connection exposed as ``DIRECT_DATABASE_URL``.
 The normal Web Service continues to use the pooled connection exposed as
 ``DATABASE_URL``.
 
-Do not add ``migrate`` or ``createsuperuser`` to the Build command or
-``Procfile``.
+Do not add ``migrate`` or ``createsuperuser`` to Dockerfile build steps, the
+Dockerfile runtime command, or Koyeb command overrides.
 
 Verify the deployment
 ---------------------
@@ -436,12 +437,13 @@ Verify the deployment
 After the first successful deployment and initial database setup, confirm
 that:
 
-* the build completes without errors;
-* the Python buildpack detects the project correctly;
-* production dependencies install successfully;
-* ``collectstatic`` runs successfully during the build;
-* the ``Procfile`` web process is detected;
-* Gunicorn starts successfully;
+* the Dockerfile build completes without errors;
+* the expected Python 3.13 container base is used;
+* Poetry 2.4.1 installs successfully in the builder stage;
+* production dependencies install successfully from ``poetry.lock``;
+* ``collectstatic`` runs successfully during the image build;
+* the final runtime image is created;
+* Gunicorn starts successfully from the Dockerfile runtime command;
 * the application is reachable through the ``.koyeb.app`` HTTPS URL;
 * HTTPS redirection does not create a redirect loop;
 * Django static files are served correctly;
@@ -496,10 +498,8 @@ Official references
 The following official pages provide the current platform documentation:
 
 * `Koyeb documentation`_
-* `Koyeb Django deployment`_
 * `Deploy with GitHub`_
 * `Build from Git`_
-* `Python buildpack`_
 * `Environment variables`_
 * `Koyeb Secrets`_
 * `Koyeb Instances`_
@@ -514,13 +514,10 @@ The following official pages provide the current platform documentation:
 
 .. _Koyeb control panel: https://app.koyeb.com/
 .. _Koyeb documentation: https://www.koyeb.com/docs
-.. _Koyeb Django deployment: https://www.koyeb.com/docs/deploy/django
 .. _Deploy with GitHub:
    https://www.koyeb.com/docs/build-and-deploy/deploy-with-git
 .. _Build from Git:
    https://www.koyeb.com/docs/build-and-deploy/build-from-git
-.. _Python buildpack:
-   https://www.koyeb.com/docs/build-and-deploy/build-from-git/python
 .. _Environment variables:
    https://www.koyeb.com/docs/build-and-deploy/environment-variables
 .. _Koyeb Secrets: https://www.koyeb.com/docs/reference/secrets

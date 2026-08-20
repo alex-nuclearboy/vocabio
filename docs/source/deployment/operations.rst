@@ -213,9 +213,9 @@ After the command completes, verify the migration state:
 The normal Gunicorn process continues to use the pooled connection from
 ``DATABASE_URL`` throughout this procedure.
 
-Do not add ``migrate`` to the Koyeb Build command, Run command, or
-``Procfile``. Schema changes are controlled release operations rather than
-application startup tasks.
+Do not add ``migrate`` to Dockerfile build steps, the Dockerfile runtime
+command, or Koyeb command overrides. Schema changes are controlled release
+operations rather than application startup tasks.
 
 Subsequent schema changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -397,17 +397,18 @@ Review the Koyeb build logs first.
 Confirm that:
 
 * the expected Git revision was deployed;
-* the Python buildpack detected the project;
-* dependencies installed from the Poetry lock file;
-* automatic ``collectstatic`` completed successfully;
-* no custom Koyeb Build command duplicates the buildpack steps.
+* the Koyeb Service uses the Dockerfile builder;
+* the repository root ``Dockerfile`` was detected;
+* production dependencies installed from ``poetry.lock``;
+* ``collectstatic`` completed successfully during the image build;
+* the final runtime image was created successfully.
 
 Runtime startup failure
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Review the runtime logs and confirm that:
 
-* the ``Procfile`` web process was detected;
+* the Dockerfile runtime command started Gunicorn;
 * Gunicorn started successfully;
 * ``PORT`` is supplied by Koyeb;
 * required production environment variables are present;

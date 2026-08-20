@@ -37,11 +37,12 @@ The current project foundation has the following structure:
    │   ├── __init__.py
    │   ├── test_database.py
    │   └── test_settings.py
+   ├── .dockerignore
    ├── .env.example
    ├── .gitignore
    ├── .python-version
+   ├── Dockerfile
    ├── LICENSE
-   ├── Procfile
    ├── README.md
    ├── compose.yaml
    ├── manage.py
@@ -148,9 +149,9 @@ The GitHub Actions workflow is stored in:
 
    .github/workflows/ci.yml
 
-It runs the primary project checks and Python compatibility checks in
-isolated environments, using PostgreSQL service containers where database
-access is required.
+It runs the primary project checks, Python compatibility checks, and the
+production container build in isolated environments, using PostgreSQL service
+containers where database access is required.
 
 The workflow and its individual checks are documented in
 :doc:`../development/continuous-integration`.
@@ -204,7 +205,7 @@ See :doc:`../development/index`.
 ``deployment``
 ~~~~~~~~~~~~~~
 
-Documents the production deployment on Koyeb, the Neon PostgreSQL
+Documents the production container build, Koyeb deployment, Neon PostgreSQL
 configuration, and routine deployment operations.
 
 See :doc:`../deployment/index`.
@@ -257,25 +258,32 @@ Database configuration is documented in
 :doc:`../configuration/database`, and the normal start and stop workflow is
 documented in :doc:`../getting-started/local-development`.
 
-Production process
-------------------
+Production container
+--------------------
 
-``Procfile`` defines the production web process used by the Koyeb
+``Dockerfile`` defines the production container image used by the Koyeb
 deployment.
 
-The current process is:
+The image uses a multi-stage build so that build tooling such as Poetry does
+not remain in the final runtime image. Runtime dependencies are installed
+from ``poetry.lock``, Django static files are collected during the build, and
+Gunicorn runs the application as a non-root container user.
 
-.. code-block:: text
+``.dockerignore`` limits the Docker build context and prevents local Secrets
+and development artefacts from being copied into the production image.
 
-   web: gunicorn --bind 0.0.0.0:$PORT config.wsgi
-
-Koyeb-specific build and runtime configuration is documented in
-:doc:`../deployment/koyeb`.
+The production container build is documented in
+:doc:`../deployment/docker`, while Koyeb-specific deployment configuration is
+documented in :doc:`../deployment/koyeb`.
 
 Python runtime
 --------------
 
-``.python-version`` records the preferred Python runtime for the project.
+``.python-version`` records Python 3.13 as the preferred local development and
+primary CI runtime.
+
+The production Dockerfile independently uses the Python 3.13 runtime series.
+The two configurations should remain aligned.
 
 The supported Python versions and development prerequisites are documented
 in :doc:`../getting-started/requirements`.
