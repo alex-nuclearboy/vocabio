@@ -146,6 +146,25 @@ a warning, an unresolved reference, or a build error.
 
 The generated HTML files are written to ``docs/_build/html``.
 
+Production container validation
+-------------------------------
+
+When changing the Dockerfile, ``.dockerignore``, runtime dependencies, or
+deployment configuration, build the production image locally with:
+
+.. code-block:: console
+
+   docker build --tag vocabio:local .
+
+The production image build is also validated automatically by continuous
+integration.
+
+A Docker image build is not required before every routine source-code commit.
+The standard local quality-check sequence remains unchanged.
+
+The production container is documented in
+:doc:`../deployment/docker`.
+
 Recommended check sequence
 --------------------------
 
@@ -162,8 +181,9 @@ The complete local quality-check sequence is:
    poetry run pytest
    poetry run sphinx-build -E -a -W -n -T -b html docs/source docs/_build/html
 
-These checks correspond to the principal checks performed by continuous
-integration.
+These checks correspond to the primary local validation performed by
+continuous integration. Production container validation is run separately
+when relevant and is always performed by CI.
 
 The Django development server does not need to be running while these
 commands are executed.

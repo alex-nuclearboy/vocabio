@@ -5,7 +5,7 @@ This section documents the development practices and automated checks used
 by Vocabio.
 
 It covers the test suite, local code-quality checks, dependency auditing,
-and continuous integration.
+production container validation, and continuous integration.
 
 .. toctree::
    :maxdepth: 1

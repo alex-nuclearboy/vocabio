@@ -30,7 +30,8 @@ Runtime environment
 The CI workflow runs on GitHub-hosted Ubuntu environments.
 
 The primary ``checks`` job has a timeout of 15 minutes. The Python
-compatibility jobs have a timeout of 10 minutes each.
+compatibility jobs and the ``container-build`` job have a timeout of 10
+minutes each.
 
 Python
 ~~~~~~
@@ -70,7 +71,8 @@ Dependency caching is handled by the Python setup action using
 PostgreSQL service
 ------------------
 
-The CI jobs start isolated PostgreSQL service containers based on:
+The primary ``checks`` job and Python compatibility jobs start isolated
+PostgreSQL service containers based on:
 
 .. code-block:: text
 
@@ -262,6 +264,39 @@ For each version, the workflow:
 
 Python 3.13 is not repeated in this matrix because it is already exercised
 by the primary ``checks`` job through ``.python-version``.
+
+Production container build
+--------------------------
+
+A separate ``container-build`` job validates the production Dockerfile.
+
+The job:
+
+* checks out the repository;
+* builds the production image from the root ``Dockerfile``;
+* verifies that Python and Gunicorn are available in the final image;
+* verifies that the container runs as the expected non-root user;
+* verifies that collected static files are present;
+* verifies that Poetry is not included in the runtime image.
+
+The build runs:
+
+.. code-block:: console
+
+   docker build --tag vocabio:ci .
+
+This verifies the same production container definition used by Koyeb without
+requiring deployment credentials or a connection to the production database.
+
+The Docker build installs Poetry 2.4.1 inside its builder stage, installs only
+the runtime dependencies from ``poetry.lock``, and runs Django static-file
+collection.
+
+The image validation checks the final runtime stage rather than the temporary
+builder stage.
+
+The production container architecture is documented in
+:doc:`../deployment/docker`.
 
 Relationship to local checks
 ----------------------------
