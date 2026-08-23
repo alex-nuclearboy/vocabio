@@ -260,6 +260,7 @@ For each version, the workflow:
 * configures the selected Python version;
 * installs the project and development dependencies;
 * runs Django system checks;
+* collects static files using the production static-file configuration;
 * runs the complete test suite with coverage.
 
 Python 3.13 is not repeated in this matrix because it is already exercised
