@@ -118,17 +118,24 @@ run:
 
    poetry run pytest
 
-The pytest configuration enables coverage reporting for the project
-configuration package and displays missing lines in the terminal.
+The pytest configuration enables coverage reporting for the project source
+packages and displays missing lines in the terminal.
+
+The current coverage scope includes:
+
+* ``config``;
+* ``accounts``.
 
 Branch coverage is enabled.
 
-The following Django boilerplate modules are excluded from the current
+The following files and generated or test-only modules are excluded from
 coverage measurement:
 
 * ``config/asgi.py``;
 * ``config/wsgi.py``;
-* ``config/urls.py``.
+* ``config/urls.py``;
+* Django migration modules;
+* test modules located inside application ``tests`` packages.
 
 The configured minimum coverage threshold is:
 
@@ -145,6 +152,25 @@ Writing tests
 -------------
 
 Add tests with the code they verify.
+
+Project-level tests for configuration and infrastructure are stored in the
+top-level ``tests`` package. Application-specific tests are stored in a
+``tests`` package inside the corresponding Django application.
+
+For example:
+
+.. code-block:: text
+
+   tests/
+   ├── test_database.py
+   └── test_settings.py
+
+   accounts/
+   └── tests/
+       └── __init__.py
+
+Individual application test modules should be added only when corresponding
+behaviour exists.
 
 Test behaviour rather than implementation details where practical, and keep
 individual tests focused on one expected outcome.

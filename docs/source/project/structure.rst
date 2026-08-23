@@ -6,7 +6,7 @@ configuration, automated tests, development tooling, documentation,
 deployment configuration, and local infrastructure kept as separate
 repository components.
 
-The current project foundation has the following structure:
+The current project has the following structure:
 
 .. code-block:: text
 
@@ -14,6 +14,16 @@ The current project foundation has the following structure:
    ├── .github/
    │   └── workflows/
    │       └── ci.yml
+   ├── accounts/
+   │   ├── migrations/
+   │   │   └── __init__.py
+   │   ├── tests/
+   │   │   └── __init__.py
+   │   ├── __init__.py
+   │   ├── admin.py
+   │   ├── apps.py
+   │   ├── models.py
+   │   └── views.py
    ├── config/
    │   ├── __init__.py
    │   ├── asgi.py
@@ -108,10 +118,45 @@ Exposes the WSGI application object used by WSGI-compatible servers.
 
 Marks ``config`` as a Python package.
 
+Accounts application
+--------------------
+
+The ``accounts`` package is the Django application for Vocabio-specific
+account and authentication functionality.
+
+Vocabio uses Django's built-in ``django.contrib.auth.User`` model and does
+not define a custom user model.
+
+The current application structure is:
+
+.. code-block:: text
+
+   accounts/
+   ├── migrations/
+   │   └── __init__.py
+   ├── tests/
+   │   └── __init__.py
+   ├── __init__.py
+   ├── admin.py
+   ├── apps.py
+   ├── models.py
+   └── views.py
+
+``accounts/apps.py`` defines the Django application configuration.
+
+The ``admin.py``, ``models.py``, and ``views.py`` modules currently contain
+no application-specific behaviour and will be extended only when the
+corresponding functionality is introduced.
+
+Application-specific tests are stored in ``accounts/tests``. Project-level
+configuration and infrastructure tests remain in the top-level ``tests``
+package.
+
 Tests
 -----
 
-The ``tests`` directory contains automated project tests.
+The top-level ``tests`` directory contains project-level tests for
+configuration and infrastructure.
 
 The current foundation includes:
 
@@ -132,8 +177,9 @@ settings behaviour.
 The testing framework, test execution, and coverage requirements are
 documented in :doc:`../development/testing`.
 
-As the project grows, tests should remain organised around the code and
-behaviour they verify.
+Application-specific tests are stored inside the corresponding application
+package, while the top-level ``tests`` package remains responsible for
+project-level configuration and infrastructure behaviour.
 
 ``tests/__init__.py``
 ~~~~~~~~~~~~~~~~~~~~~

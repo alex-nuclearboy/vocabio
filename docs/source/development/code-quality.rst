@@ -30,7 +30,7 @@ Run Pylint with:
 
 .. code-block:: console
 
-   poetry run pylint config tests manage.py docs/source/conf.py
+   poetry run pylint config accounts tests manage.py docs/source/conf.py
 
 The Pylint configuration is maintained in ``pyproject.toml``.
 
@@ -43,8 +43,10 @@ The current configuration:
 * enforces a maximum line length of 79 characters;
 * reports duplicated code according to the configured similarity threshold.
 
-As new Django applications are added, include their source directories in
-the local Pylint command and in continuous integration.
+The local Pylint command includes each Django application source directory
+alongside the project configuration, project-level tests, management entry
+point, and Sphinx configuration. Keep the local command and continuous
+integration aligned as new applications are added.
 
 Code formatting
 ---------------
@@ -174,7 +176,7 @@ The complete local quality-check sequence is:
 
    poetry check
    poetry run python -m pip_audit --local
-   poetry run pylint config tests manage.py docs/source/conf.py
+   poetry run pylint config accounts tests manage.py docs/source/conf.py
    poetry run python manage.py check
    poetry run python manage.py makemigrations --check --dry-run
    poetry run python manage.py collectstatic --noinput

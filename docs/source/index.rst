@@ -4,11 +4,11 @@ Vocabio documentation
 Vocabio is a Django-based application for building and managing a structured
 English vocabulary database.
 
-The project is developed incrementally, with configuration, testing, code
-quality, continuous integration, and deployment configuration established
-before application-specific features are introduced.
+The project is developed incrementally on a tested foundation of
+configuration, code-quality checks, continuous integration, and deployment
+infrastructure.
 
-This documentation describes the current project foundation and will expand
+This documentation describes the current project structure and expands
 alongside the application.
 
 .. toctree::

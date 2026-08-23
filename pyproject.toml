@@ -41,7 +41,7 @@ dev = [
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
-addopts = "--cov=config --cov-report=term-missing"
+addopts = "--cov --cov-report=term-missing"
 
 [tool.pylint.main]
 load-plugins = ["pylint_django"]
@@ -58,11 +58,13 @@ min-similarity-lines = 4
 
 [tool.coverage.run]
 branch = true
-source = ["config"]
+source = ["config", "accounts"]
 omit = [
     "config/asgi.py",
     "config/wsgi.py",
     "config/urls.py",
+    "*/migrations/*",
+    "*/tests/*",
 ]
 
 [tool.coverage.report]
