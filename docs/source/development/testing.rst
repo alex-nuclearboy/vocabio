@@ -136,11 +136,21 @@ The current authentication test package contains:
    accounts/tests/
    ├── __init__.py
    ├── test_forms.py
+   ├── test_lockout.py
    ├── test_urls.py
    └── test_views.py
 
 ``test_forms.py`` verifies Vocabio-specific login form configuration,
 including field labels and browser credential metadata.
+
+``test_lockout.py`` verifies the authentication lockout policy, including:
+
+* lockout on the third failed authentication attempt;
+* reset of accumulated failures after successful authentication;
+* isolation of lockouts by IP address;
+* isolation of lockouts by username;
+* rightmost ``X-Forwarded-For`` address handling;
+* protection of the Django Admin login.
 
 ``test_urls.py`` verifies the public login and logout paths and their
 namespaced Django route names.
@@ -229,6 +239,7 @@ For example:
    └── tests/
        ├── __init__.py
        ├── test_forms.py
+       ├── test_lockout.py
        ├── test_urls.py
        └── test_views.py
 

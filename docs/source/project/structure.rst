@@ -23,6 +23,7 @@ The current project has the following structure:
    │   ├── tests/
    │   │   ├── __init__.py
    │   │   ├── test_forms.py
+   │   │   ├── test_lockout.py
    │   │   ├── test_urls.py
    │   │   └── test_views.py
    │   ├── __init__.py
@@ -93,8 +94,9 @@ The package currently contains:
 
 Contains the Django settings and the project-specific configuration helpers.
 
-It also defines the project authentication routing settings, including the
-login route and the default login and logout redirect destinations.
+It also defines the project authentication configuration, including
+authentication backends, login-attempt protection, the login route, and the
+default login and logout redirect destinations.
 
 Authentication behaviour and access-control policy are documented in
 :doc:`authentication`.
@@ -187,8 +189,9 @@ model rather than defining an account model of its own.
 
 Application-specific tests are stored in ``accounts/tests``. They cover the
 login form, URL configuration, authentication views, redirect safety, CSRF
-behaviour, cache-control behaviour, session behaviour, and inactive-user
-rejection.
+behaviour, cache-control behaviour, session behaviour, inactive-user
+rejection, login-attempt lockout behaviour, client IP handling, and Django
+Admin lockout protection.
 
 Detailed authentication behaviour and the project authorisation policy are
 documented in :doc:`authentication`.
@@ -210,7 +213,8 @@ The current project-level test package contains:
    └── test_settings.py
 
 ``tests/test_authentication_settings.py`` verifies the project-level
-authentication route and redirect settings.
+authentication routing, redirect settings, authentication backends, lockout
+policy, and client IP resolution configuration.
 
 ``tests/test_database.py`` verifies real Django connectivity to PostgreSQL
 and confirms that the configured connection uses the PostgreSQL backend.

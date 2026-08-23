@@ -231,6 +231,22 @@ configured, Koyeb sets it to the lowest exposed port.
 Leave the Koyeb entrypoint and command overrides disabled so that the runtime
 process remains defined by the Docker image.
 
+Forwarded client addresses
+--------------------------
+
+Koyeb sets the ``X-Forwarded-For`` header and appends the address used to
+connect to Koyeb to the end of the forwarded-address chain. Koyeb guarantees
+only the final address in that chain as valid.
+
+Vocabio therefore configures ``django-ipware`` to prefer
+``HTTP_X_FORWARDED_FOR`` over ``REMOTE_ADDR`` and to resolve the
+rightmost forwarded address. This address is used by ``django-axes`` as
+part of the login lockout key.
+
+The client IP configuration is security-sensitive. If Vocabio is moved
+to a different hosting or reverse-proxy environment, the
+forwarded-address policy must be reviewed before deployment.
+
 Store production Secrets
 ------------------------
 

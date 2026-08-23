@@ -127,6 +127,31 @@ The project uses Django's standard
 
 No custom application-access middleware is used.
 
+Login attempt protection
+------------------------
+
+Vocabio uses ``django-axes`` to protect authentication endpoints against
+repeated failed login attempts.
+
+Axes is integrated through ``AxesStandaloneBackend`` and
+``AxesMiddleware``. Django's standard ``ModelBackend`` remains responsible
+for credential authentication and permission handling.
+
+The current lockout policy is:
+
+* three failed authentication attempts trigger a lockout;
+* the third failed attempt is rejected with HTTP 429 Too Many Requests;
+* the lockout lasts for 15 minutes;
+* successful authentication resets accumulated failed attempts;
+* lockouts are scoped to the combination of username and IP address;
+* the same lockout policy protects both the Vocabio login view and Django
+  Admin.
+
+Client IP addresses are resolved through ``django-ipware``.
+``HTTP_X_FORWARDED_FOR`` is preferred, with ``REMOTE_ADDR`` used as a
+fallback. Forwarded addresses are resolved using the rightmost address so
+that production behaviour matches the Koyeb proxy configuration.
+
 Authorisation policy
 --------------------
 
