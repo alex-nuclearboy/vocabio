@@ -9,7 +9,10 @@ pytestmark = pytest.mark.django_db
 
 def test_login_page_is_available(client):
     """Anonymous users can open the login page."""
-    response = client.get(reverse("accounts:login"))
+    response = client.get(
+        reverse("accounts:login"),
+        secure=True,
+    )
 
     assert response.status_code == 200
     assert "form" in response.context
@@ -17,7 +20,10 @@ def test_login_page_is_available(client):
 
 def test_login_page_renders_authentication_form(client):
     """The login page renders the authentication form securely."""
-    response = client.get(reverse("accounts:login"))
+    response = client.get(
+        reverse("accounts:login"),
+        secure=True,
+    )
 
     content = response.content.decode()
 
@@ -35,7 +41,10 @@ def test_login_page_renders_authentication_form(client):
 
 def test_login_page_is_not_cached(client):
     """The login page prevents browser and intermediary caching."""
-    response = client.get(reverse("accounts:login"))
+    response = client.get(
+        reverse("accounts:login"),
+        secure=True,
+    )
 
     cache_control = response.headers["Cache-Control"]
 
@@ -54,6 +63,7 @@ def test_login_rejects_post_without_csrf():
             "username": "editor",
             "password": "test-password",
         },
+        secure=True,
     )
 
     assert response.status_code == 403
@@ -66,6 +76,7 @@ def test_login_page_preserves_safe_next_url(client):
         {
             "next": "/words/example/edit/",
         },
+        secure=True,
     )
 
     assert response.status_code == 200
@@ -79,6 +90,7 @@ def test_login_page_renders_safe_next_url(client):
         {
             "next": "/words/example/edit/",
         },
+        secure=True,
     )
 
     content = response.content.decode()
@@ -94,6 +106,7 @@ def test_login_page_rejects_external_next_url(client):
         {
             "next": "https://example.com/",
         },
+        secure=True,
     )
 
     assert response.status_code == 200
@@ -107,6 +120,7 @@ def test_login_page_does_not_render_external_next_url(client):
         {
             "next": "https://example.com/",
         },
+        secure=True,
     )
 
     content = response.content.decode()
@@ -116,7 +130,11 @@ def test_login_page_does_not_render_external_next_url(client):
 
 def test_empty_login_form_shows_field_errors(client):
     """An empty login submission shows the required field errors."""
-    response = client.post(reverse("accounts:login"), {})
+    response = client.post(
+        reverse("accounts:login"),
+        {},
+        secure=True,
+    )
 
     form = response.context["form"]
 
@@ -139,6 +157,7 @@ def test_valid_credentials_log_user_in(client, django_user_model):
             "username": user.username,
             "password": "test-password",
         },
+        secure=True,
     )
 
     assert response.status_code == 302
@@ -159,6 +178,7 @@ def test_invalid_credentials_show_login_error(client, django_user_model):
             "username": "editor",
             "password": "wrong-password",
         },
+        secure=True,
     )
 
     form = response.context["form"]
@@ -184,6 +204,7 @@ def test_inactive_user_cannot_log_in(client, django_user_model):
             "username": "editor",
             "password": "test-password",
         },
+        secure=True,
     )
 
     form = response.context["form"]
@@ -204,7 +225,10 @@ def test_authenticated_user_is_redirected_from_login(
     )
     client.force_login(user)
 
-    response = client.get(reverse("accounts:login"))
+    response = client.get(
+        reverse("accounts:login"),
+        secure=True,
+    )
 
     assert response.status_code == 302
     assert response.url == "/"
@@ -212,7 +236,10 @@ def test_authenticated_user_is_redirected_from_login(
 
 def test_logout_requires_post(client):
     """Logout rejects GET requests."""
-    response = client.get(reverse("accounts:logout"))
+    response = client.get(
+        reverse("accounts:logout"),
+        secure=True,
+    )
 
     assert response.status_code == 405
 
@@ -227,7 +254,10 @@ def test_logout_rejects_post_without_csrf(django_user_model):
     csrf_client = Client(enforce_csrf_checks=True)
     csrf_client.force_login(user)
 
-    response = csrf_client.post(reverse("accounts:logout"))
+    response = csrf_client.post(
+        reverse("accounts:logout"),
+        secure=True,
+    )
 
     assert response.status_code == 403
     assert "_auth_user_id" in csrf_client.session
@@ -241,7 +271,10 @@ def test_logout_ends_authenticated_session(client, django_user_model):
     )
     client.force_login(user)
 
-    response = client.post(reverse("accounts:logout"))
+    response = client.post(
+        reverse("accounts:logout"),
+        secure=True,
+    )
 
     assert response.status_code == 302
     assert response.url == "/"
@@ -262,6 +295,7 @@ def test_login_redirects_to_safe_next_url(client, django_user_model):
             "password": "test-password",
             "next": "/words/example/edit/",
         },
+        secure=True,
     )
 
     assert response.status_code == 302
@@ -282,6 +316,7 @@ def test_login_rejects_external_next_url(client, django_user_model):
             "password": "test-password",
             "next": "https://example.com/",
         },
+        secure=True,
     )
 
     assert response.status_code == 302

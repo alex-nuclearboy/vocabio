@@ -162,6 +162,10 @@ namespaced Django route names.
 The authentication tests use Django's normal test client and database-backed
 user model where required.
 
+Authentication view requests are issued as secure HTTPS requests so that
+the tests remain consistent with production SSL redirect settings used in
+continuous integration.
+
 Coverage
 --------
 
