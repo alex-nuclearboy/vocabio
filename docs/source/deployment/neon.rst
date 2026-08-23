@@ -75,8 +75,9 @@ and database geographically close reduces avoidable network latency.
 Choose the region carefully because an existing Neon project cannot be
 moved to another region in place.
 
-Keep Neon Auth disabled. Vocabio uses Django authentication, sessions,
-groups, and permissions, so Neon Auth is not part of this deployment.
+Keep Neon Auth disabled. Vocabio uses Django authentication and sessions,
+and application authorisation is based on Django's permission framework,
+so Neon Auth is not part of this deployment.
 
 If the project is being created now, select ``Create project`` and continue
 to the project dashboard.

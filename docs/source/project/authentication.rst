@@ -56,8 +56,8 @@ Project-level authentication routing is configured in ``config/settings.py``:
 ``LOGIN_URL`` allows Django authentication and permission helpers to redirect
 anonymous users to the Vocabio login route.
 
-The login and logout redirect settings currently use the public application
-root as their default destination.
+The login and logout redirect settings currently use the application root as
+a temporary default destination until the public root view is implemented.
 
 Login form
 ----------

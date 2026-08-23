@@ -14,6 +14,7 @@ It currently covers:
 - project requirements and installation;
 - local development;
 - environment and database configuration;
+- authentication and access-control policy;
 - testing and code-quality checks;
 - continuous integration;
 - production deployment and database operations;

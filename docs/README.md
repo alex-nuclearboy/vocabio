@@ -3,9 +3,10 @@
 The Vocabio project documentation is maintained with Sphinx.
 
 The documentation covers project setup, local development, configuration,
-development tooling, continuous integration, production deployment,
-database operations, project structure, and technical reference material.
-Application-specific documentation will be added as the project grows.
+authentication and access-control policy, development tooling, continuous
+integration, production deployment, database operations, project structure,
+and technical reference material. Application-specific documentation will be
+added as the project grows.
 
 ## Documentation source
 
