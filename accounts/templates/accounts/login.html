@@ -1,0 +1,54 @@
+{% load i18n %}
+{% get_current_language as current_language %}
+
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% translate "Sign in" %} | Vocabio</title>
+</head>
+<body>
+    <main>
+        <h1>{% translate "Sign in to Vocabio" %}</h1>
+
+        <form method="post" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div>
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            
+                {% if form.username.errors %}
+                    <div role="alert">
+                        {{ form.username.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            
+                {% if form.password.errors %}
+                    <div role="alert">
+                        {{ form.password.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <button type="submit">{% translate "Sign in" %}</button>
+        </form>
+    </main>
+</body>
+</html>

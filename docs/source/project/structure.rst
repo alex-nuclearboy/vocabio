@@ -17,12 +17,20 @@ The current project has the following structure:
    ├── accounts/
    │   ├── migrations/
    │   │   └── __init__.py
+   │   ├── templates/
+   │   │   └── accounts/
+   │   │       └── login.html
    │   ├── tests/
-   │   │   └── __init__.py
+   │   │   ├── __init__.py
+   │   │   ├── test_forms.py
+   │   │   ├── test_urls.py
+   │   │   └── test_views.py
    │   ├── __init__.py
    │   ├── admin.py
    │   ├── apps.py
+   │   ├── forms.py
    │   ├── models.py
+   │   ├── urls.py
    │   └── views.py
    ├── config/
    │   ├── __init__.py
@@ -45,6 +53,7 @@ The current project has the following structure:
    │   └── make.bat
    ├── tests/
    │   ├── __init__.py
+   │   ├── test_authentication_settings.py
    │   ├── test_database.py
    │   └── test_settings.py
    ├── .dockerignore
@@ -68,7 +77,7 @@ Project configuration
 
 The ``config`` package contains the Django project configuration.
 
-The current foundation includes:
+The package currently contains:
 
 .. code-block:: text
 
@@ -83,6 +92,12 @@ The current foundation includes:
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Contains the Django settings and the project-specific configuration helpers.
+
+It also defines the project authentication routing settings, including the
+login route and the default login and logout redirect destinations.
+
+Authentication behaviour and access-control policy are documented in
+:doc:`authentication`.
 
 Environment-specific and sensitive values are read from environment
 variables rather than being stored directly in the module.
@@ -100,8 +115,8 @@ docstrings in :doc:`../reference/settings`.
 
 Defines the root URL configuration for the Django project.
 
-Application URL configurations can be included here as Django applications
-are introduced.
+The current root configuration includes the ``accounts`` URL namespace at
+the application root and exposes Django Admin under ``/admin/``.
 
 ``config/asgi.py``
 ~~~~~~~~~~~~~~~~~~
@@ -121,8 +136,8 @@ Marks ``config`` as a Python package.
 Accounts application
 --------------------
 
-The ``accounts`` package is the Django application for Vocabio-specific
-account and authentication functionality.
+The ``accounts`` package is the Django application responsible for
+Vocabio-specific authentication functionality.
 
 Vocabio uses Django's built-in ``django.contrib.auth.User`` model and does
 not define a custom user model.
@@ -134,23 +149,49 @@ The current application structure is:
    accounts/
    ├── migrations/
    │   └── __init__.py
+   ├── templates/
+   │   └── accounts/
+   │       └── login.html
    ├── tests/
-   │   └── __init__.py
+   │   ├── __init__.py
+   │   ├── test_forms.py
+   │   ├── test_urls.py
+   │   └── test_views.py
    ├── __init__.py
    ├── admin.py
    ├── apps.py
+   ├── forms.py
    ├── models.py
+   ├── urls.py
    └── views.py
 
 ``accounts/apps.py`` defines the Django application configuration.
 
-The ``admin.py``, ``models.py``, and ``views.py`` modules currently contain
-no application-specific behaviour and will be extended only when the
-corresponding functionality is introduced.
+``accounts/forms.py`` defines the Vocabio login form. The form subclasses
+Django's standard ``AuthenticationForm`` and configures the username and
+password fields for the Vocabio authentication interface.
 
-Application-specific tests are stored in ``accounts/tests``. Project-level
-configuration and infrastructure tests remain in the top-level ``tests``
-package.
+``accounts/urls.py`` defines the namespaced login and logout routes.
+
+``accounts/views.py`` implements login and logout behaviour using Django's
+standard authentication and session framework. Login supports validated
+local ``next`` redirects, while logout accepts ``POST`` requests only.
+
+``accounts/templates/accounts/login.html`` contains the current login page.
+The form uses CSRF protection, displays form validation errors, and preserves
+a validated local redirect target when one is supplied.
+
+``accounts/admin.py`` and ``accounts/models.py`` currently contain no
+application-specific behaviour. The application uses Django's built-in user
+model rather than defining an account model of its own.
+
+Application-specific tests are stored in ``accounts/tests``. They cover the
+login form, URL configuration, authentication views, redirect safety, CSRF
+behaviour, cache-control behaviour, session behaviour, and inactive-user
+rejection.
+
+Detailed authentication behaviour and the project authorisation policy are
+documented in :doc:`authentication`.
 
 Tests
 -----
@@ -158,17 +199,21 @@ Tests
 The top-level ``tests`` directory contains project-level tests for
 configuration and infrastructure.
 
-The current foundation includes:
+The current project-level test package contains:
 
 .. code-block:: text
 
    tests/
    ├── __init__.py
+   ├── test_authentication_settings.py
    ├── test_database.py
    └── test_settings.py
 
-``tests/test_database.py`` verifies real Django connectivity to PostgreSQL and
-confirms that the configured connection uses the PostgreSQL backend.
+``tests/test_authentication_settings.py`` verifies the project-level
+authentication route and redirect settings.
+
+``tests/test_database.py`` verifies real Django connectivity to PostgreSQL
+and confirms that the configured connection uses the PostgreSQL backend.
 
 ``tests/test_settings.py`` verifies environment handling and project
 configuration, including PostgreSQL database URL validation and related

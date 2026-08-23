@@ -40,20 +40,34 @@ configured coverage threshold.
 Run selected tests
 ------------------
 
-A specific test module can be executed by passing its path to pytest:
+During development, selected tests can be run without collecting
+project-wide coverage.
+
+A specific project-level test module can be executed with:
 
 .. code-block:: console
 
-   poetry run pytest tests/test_settings.py
+   poetry run pytest tests/test_settings.py --no-cov
+
+An application-specific test module can be executed in the same way:
+
+.. code-block:: console
+
+   poetry run pytest accounts/tests/test_views.py --no-cov
 
 A subset of tests can also be selected with a pytest keyword expression:
 
 .. code-block:: console
 
-   poetry run pytest -k <expression>
+   poetry run pytest -k <expression> --no-cov
 
-Use targeted test runs while developing, but run the complete test suite
-before committing substantial changes.
+The configured coverage threshold applies to the complete project test suite
+rather than to targeted test runs. Run the full suite without ``--no-cov``
+before committing changes:
+
+.. code-block:: console
+
+   poetry run pytest
 
 Django configuration
 --------------------
@@ -72,6 +86,7 @@ The current configuration tests cover behaviour such as:
 * CSRF trusted-origin normalisation;
 * secure cookie requirements;
 * HSTS configuration validation;
+* authentication route and redirect settings;
 * PostgreSQL URL validation;
 * invalid database URL formats and ports;
 * accepted and rejected database schemes;
@@ -99,14 +114,53 @@ The local PostgreSQL service and its health check are documented in
 database are available in
 :doc:`../getting-started/local-development`.
 
-The database integration test can be run independently with:
+The database integration test can be run independently without collecting
+project-wide coverage:
 
 .. code-block:: console
 
-   poetry run pytest tests/test_database.py
+   poetry run pytest tests/test_database.py --no-cov
 
 Tests that do not establish a database connection do not require the local
 PostgreSQL service to be running.
+
+Accounts authentication tests
+-----------------------------
+
+Authentication behaviour is tested inside the ``accounts`` application.
+
+The current authentication test package contains:
+
+.. code-block:: text
+
+   accounts/tests/
+   ├── __init__.py
+   ├── test_forms.py
+   ├── test_urls.py
+   └── test_views.py
+
+``test_forms.py`` verifies Vocabio-specific login form configuration,
+including field labels and browser credential metadata.
+
+``test_urls.py`` verifies the public login and logout paths and their
+namespaced Django route names.
+
+``test_views.py`` verifies the authentication flow, including:
+
+* login-page availability;
+* rendered authentication fields and CSRF token;
+* safe and unsafe ``next`` redirect handling;
+* empty login submissions;
+* valid and invalid credentials;
+* inactive-user rejection;
+* authenticated-user redirect behaviour;
+* POST-only logout;
+* CSRF rejection for authentication POST requests;
+* login-page cache-control behaviour;
+* authenticated-session termination on logout.
+
+The authentication tests use Django's normal test client and database-backed
+user model where required.
 
 Coverage
 --------
@@ -162,12 +216,17 @@ For example:
 .. code-block:: text
 
    tests/
+   ├── __init__.py
+   ├── test_authentication_settings.py
    ├── test_database.py
    └── test_settings.py
 
    accounts/
    └── tests/
-       └── __init__.py
+       ├── __init__.py
+       ├── test_forms.py
+       ├── test_urls.py
+       └── test_views.py
 
 Individual application test modules should be added only when corresponding
 behaviour exists.
