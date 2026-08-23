@@ -62,6 +62,6 @@ def login_view(request: HttpRequest) -> HttpResponse:
 @never_cache
 @require_POST
 def logout_view(request: HttpRequest) -> HttpResponse:
-    """Log out the current user and return to the public application."""
+    """Log out the current user and redirect to the configured destination."""
     logout(request)
     return redirect(settings.LOGOUT_REDIRECT_URL)
