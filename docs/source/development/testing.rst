@@ -86,7 +86,7 @@ The current configuration tests cover behaviour such as:
 * CSRF trusted-origin normalisation;
 * secure cookie requirements;
 * HSTS configuration validation;
-* authentication route and redirect settings;
+* authentication, lockout, and redirect settings;
 * PostgreSQL URL validation;
 * invalid database URL formats and ports;
 * accepted and rejected database schemes;

@@ -43,6 +43,14 @@ def test_axes_resets_failures_after_successful_login():
     assert settings.AXES_RESET_ON_SUCCESS is True
 
 
+def test_axes_does_not_extend_cooloff_during_lockout():
+    """Failed attempts during lockout do not extend the cool-off period."""
+    assert (
+        settings.AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT
+        is False
+    )
+
+
 def test_axes_lockout_uses_username_and_ip_address():
     """Lockouts are scoped to the username and IP address combination."""
     assert settings.AXES_LOCKOUT_PARAMETERS == [

@@ -142,6 +142,7 @@ The current lockout policy is:
 * three failed authentication attempts trigger a lockout;
 * the third failed attempt is rejected with HTTP 429 Too Many Requests;
 * the lockout lasts for 15 minutes;
+* failed attempts during a lockout do not extend its duration;
 * successful authentication resets accumulated failed attempts;
 * lockouts are scoped to the combination of username and IP address;
 * the same lockout policy protects both the Vocabio login view and Django

@@ -157,6 +157,7 @@ The current application structure is:
    ├── tests/
    │   ├── __init__.py
    │   ├── test_forms.py
+   │   ├── test_lockout.py
    │   ├── test_urls.py
    │   └── test_views.py
    ├── __init__.py
