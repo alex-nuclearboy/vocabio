@@ -30,8 +30,9 @@ The routes are namespaced as:
 the login form, while a valid ``POST`` request authenticates the user and
 creates the Django session.
 
-``/logout/`` accepts ``POST`` requests only. A ``GET`` request is rejected
-with HTTP 405 Method Not Allowed.
+``/logout/`` requires an authenticated user and accepts ``POST`` requests
+only. A ``GET`` request is rejected with HTTP 405 Method Not Allowed.
+Anonymous ``POST`` requests are redirected to the login route.
 
 The Django administration site remains available separately under:
 

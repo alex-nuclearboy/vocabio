@@ -228,9 +228,15 @@ Application-specific tests are stored in ``core/tests``. They cover URL
 configuration, home-page availability, HTTP method restrictions, health
 responses, database availability, and health-response cache behaviour.
 
-The current health endpoints are application-level endpoints. The production
-Koyeb Service continues to use its existing platform health-check
-configuration unless that deployment policy is changed separately.
+The production Koyeb Service uses the ``/health/live/`` endpoint for its HTTP
+health check. The probe supplies the public Koyeb hostname through the
+``Host`` header so that the request satisfies Django's ``ALLOWED_HOSTS``
+validation.
+
+The ``/health/ready/`` endpoint remains separate and verifies PostgreSQL
+connectivity without making database availability part of the platform
+liveness check. The complete deployment configuration is documented in
+:doc:`../deployment/koyeb`.
 
 Infrastructure package
 ----------------------

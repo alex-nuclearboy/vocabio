@@ -210,7 +210,7 @@ attempts do not emit logout audit events.
 * rightmost ``X-Forwarded-For`` address handling;
 * protection of the Django Admin login.
 
-``test_urls.py`` verifies the public login and logout paths and their
+``test_urls.py`` verifies the login and logout route paths and their
 namespaced Django route names.
 
 ``test_views.py`` verifies the authentication flow, including:

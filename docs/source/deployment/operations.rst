@@ -122,27 +122,33 @@ If no Instance is available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the shell cannot be opened because the Free Instance has scaled to zero,
-send an HTTP/1.1 request to an existing public Vocabio route and allow the
-Service to start before retrying the command.
+send an HTTP/1.1 request to the public liveness endpoint and allow the Service
+to start before retrying the command.
 
-On Windows PowerShell, for example:
+On Windows PowerShell:
 
 .. code-block:: console
 
-   curl.exe -i --http1.1 https://<public-domain>/admin/
+   curl.exe -i --http1.1 https://<public-domain>/health/live/
 
 On Linux or macOS:
 
 .. code-block:: console
 
-   curl -i --http1.1 https://<public-domain>/admin/
+   curl -i --http1.1 https://<public-domain>/health/live/
 
 Replace ``<public-domain>`` with the actual Koyeb public domain of the
 Service.
 
-The request is used only to wake the Service. A ``302 Found`` response
-redirecting to ``/admin/login/`` is expected for an unauthenticated request
-and confirms that the Service is responding.
+The request is used only to wake the Service. A successful response returns
+HTTP 200 with the liveness payload:
+
+.. code-block:: json
+
+   {"status": "ok"}
+
+After the liveness endpoint responds successfully, retry the Koyeb shell
+command.
 
 The active Instances can be inspected with:
 
