@@ -33,6 +33,22 @@ The current project has the following structure:
    │   ├── models.py
    │   ├── urls.py
    │   └── views.py
+   ├── core/
+   │   ├── migrations/
+   │   │   └── __init__.py
+   │   ├── tests/
+   │   │   ├── __init__.py
+   │   │   ├── test_urls.py
+   │   │   └── test_views.py
+   │   ├── views/
+   │   │   ├── __init__.py
+   │   │   ├── health.py
+   │   │   └── home.py
+   │   ├── __init__.py
+   │   ├── admin.py
+   │   ├── apps.py
+   │   ├── models.py
+   │   └── urls.py
    ├── config/
    │   ├── __init__.py
    │   ├── asgi.py
@@ -54,6 +70,7 @@ The current project has the following structure:
    │   └── make.bat
    ├── tests/
    │   ├── __init__.py
+   │   ├── assertions.py
    │   ├── test_authentication_settings.py
    │   ├── test_database.py
    │   └── test_settings.py
@@ -96,7 +113,7 @@ Contains the Django settings and the project-specific configuration helpers.
 
 It also defines the project authentication configuration, including
 authentication backends, login-attempt protection, the login route, and the
-default login and logout redirect destinations.
+named login and logout redirect destinations.
 
 Authentication behaviour and access-control policy are documented in
 :doc:`authentication`.
@@ -117,8 +134,9 @@ docstrings in :doc:`../reference/settings`.
 
 Defines the root URL configuration for the Django project.
 
-The current root configuration includes the ``accounts`` URL namespace at
-the application root and exposes Django Admin under ``/admin/``.
+The current root configuration includes the ``core`` and ``accounts`` URL
+namespaces at the application root and exposes Django Admin under
+``/admin/``.
 
 ``config/asgi.py``
 ~~~~~~~~~~~~~~~~~~
@@ -134,6 +152,58 @@ Exposes the WSGI application object used by WSGI-compatible servers.
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Marks ``config`` as a Python package.
+
+Core application
+----------------
+
+The ``core`` package is the Django application responsible for project-level
+HTTP behaviour that does not belong to a domain-specific application.
+
+The current application structure is:
+
+.. code-block:: text
+
+   core/
+   ├── migrations/
+   │   └── __init__.py
+   ├── tests/
+   │   ├── __init__.py
+   │   ├── test_urls.py
+   │   └── test_views.py
+   ├── views/
+   │   ├── __init__.py
+   │   ├── health.py
+   │   └── home.py
+   ├── __init__.py
+   ├── admin.py
+   ├── apps.py
+   ├── models.py
+   └── urls.py
+
+``core/apps.py`` defines the Django application configuration.
+
+``core/urls.py`` defines the namespaced public home, liveness, and readiness
+routes.
+
+``core/views/home.py`` provides the public application root.
+
+``core/views/health.py`` provides separate liveness and readiness endpoints.
+The liveness endpoint reports whether the Django application process can
+respond without accessing the database. The readiness endpoint additionally
+verifies access to the configured PostgreSQL database.
+
+``core/admin.py`` and ``core/models.py`` currently contain no
+application-specific behaviour. They remain part of the standard Django
+application structure for future project-level models and Admin
+configuration if required.
+
+Application-specific tests are stored in ``core/tests``. They cover URL
+configuration, home-page availability, HTTP method restrictions, health
+responses, database availability, and health-response cache behaviour.
+
+The current health endpoints are application-level endpoints. The production
+Koyeb Service continues to use its existing platform health-check
+configuration unless that deployment policy is changed separately.
 
 Accounts application
 --------------------
@@ -201,7 +271,7 @@ Tests
 -----
 
 The top-level ``tests`` directory contains project-level tests for
-configuration and infrastructure.
+configuration and infrastructure, together with shared test support code.
 
 The current project-level test package contains:
 
@@ -209,9 +279,13 @@ The current project-level test package contains:
 
    tests/
    ├── __init__.py
+   ├── assertions.py
    ├── test_authentication_settings.py
    ├── test_database.py
    └── test_settings.py
+
+``tests/assertions.py`` contains reusable assertions shared by application
+test suites.
 
 ``tests/test_authentication_settings.py`` verifies the project-level
 authentication routing, redirect settings, authentication backends, lockout
@@ -228,8 +302,8 @@ The testing framework, test execution, and coverage requirements are
 documented in :doc:`../development/testing`.
 
 Application-specific tests are stored inside the corresponding application
-package, while the top-level ``tests`` package remains responsible for
-project-level configuration and infrastructure behaviour.
+package, while the top-level ``tests`` package contains project-level
+configuration and infrastructure tests together with shared test support.
 
 ``tests/__init__.py``
 ~~~~~~~~~~~~~~~~~~~~~

@@ -124,6 +124,36 @@ project-wide coverage:
 Tests that do not establish a database connection do not require the local
 PostgreSQL service to be running.
 
+Core application tests
+----------------------
+
+Project-level HTTP behaviour is tested inside the ``core`` application.
+
+The current core test package contains:
+
+.. code-block:: text
+
+   core/tests/
+   ├── __init__.py
+   ├── test_urls.py
+   └── test_views.py
+
+``test_urls.py`` verifies the namespaced home, liveness, and readiness
+routes.
+
+``test_views.py`` verifies:
+
+* public home-page availability;
+* GET-only behaviour for project-level endpoints;
+* liveness responses;
+* readiness responses when PostgreSQL is available;
+* HTTP 503 responses when PostgreSQL is unavailable;
+* HTTP 503 responses when the database probe returns an unexpected result;
+* cache prevention for health-check responses.
+
+The readiness tests exercise the configured Django database connection where
+appropriate.
+
 Accounts authentication tests
 -----------------------------
 
@@ -192,6 +222,7 @@ packages and displays missing lines in the terminal.
 The current coverage scope includes:
 
 * ``config``;
+* ``core``;
 * ``accounts``.
 
 Branch coverage is enabled.
@@ -231,9 +262,16 @@ For example:
 
    tests/
    ├── __init__.py
+   ├── assertions.py
    ├── test_authentication_settings.py
    ├── test_database.py
    └── test_settings.py
+
+   core/
+   └── tests/
+       ├── __init__.py
+       ├── test_urls.py
+       └── test_views.py
 
    accounts/
    └── tests/

@@ -4,6 +4,8 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
+from tests.assertions import assert_response_is_not_cached
+
 pytestmark = pytest.mark.django_db
 
 
@@ -46,11 +48,7 @@ def test_login_page_is_not_cached(client):
         secure=True,
     )
 
-    cache_control = response.headers["Cache-Control"]
-
-    assert "no-cache" in cache_control
-    assert "no-store" in cache_control
-    assert "must-revalidate" in cache_control
+    assert_response_is_not_cached(response)
 
 
 def test_login_rejects_post_without_csrf():
@@ -161,7 +159,7 @@ def test_valid_credentials_log_user_in(client, django_user_model):
     )
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == reverse("core:home")
     assert client.session["_auth_user_id"] == str(user.pk)
 
 
@@ -231,7 +229,7 @@ def test_authenticated_user_is_redirected_from_login(
     )
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == reverse("core:home")
 
 
 def test_logout_requires_post(client):
@@ -277,7 +275,7 @@ def test_logout_ends_authenticated_session(client, django_user_model):
     )
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == reverse("core:home")
     assert "_auth_user_id" not in client.session
 
 
@@ -320,4 +318,4 @@ def test_login_rejects_external_next_url(client, django_user_model):
     )
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == reverse("core:home")

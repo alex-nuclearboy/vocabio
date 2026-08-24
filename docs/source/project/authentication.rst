@@ -50,14 +50,18 @@ Project-level authentication routing is configured in ``config/settings.py``:
 .. code-block:: python
 
    LOGIN_URL = "accounts:login"
-   LOGIN_REDIRECT_URL = "/"
-   LOGOUT_REDIRECT_URL = "/"
+   LOGIN_REDIRECT_URL = "core:home"
+   LOGOUT_REDIRECT_URL = "core:home"
 
 ``LOGIN_URL`` allows Django authentication and permission helpers to redirect
 anonymous users to the Vocabio login route.
 
-The login and logout redirect settings currently use the application root as
-a temporary default destination until the public root view is implemented.
+After successful authentication, Vocabio redirects to a validated local
+``next`` target when one is supplied. Otherwise, the named ``core:home``
+route is used.
+
+Successful logout also redirects to ``core:home`` after the authenticated
+session has been terminated.
 
 Login form
 ----------

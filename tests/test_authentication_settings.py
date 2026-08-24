@@ -10,14 +10,14 @@ def test_login_url_uses_accounts_login_route():
     assert settings.LOGIN_URL == "accounts:login"
 
 
-def test_login_redirect_url_points_to_application_root():
-    """Successful login uses the application root as the temporary default."""
-    assert settings.LOGIN_REDIRECT_URL == "/"
+def test_login_redirect_url_uses_core_home_route():
+    """Successful login redirects to the public Vocabio home route."""
+    assert settings.LOGIN_REDIRECT_URL == "core:home"
 
 
-def test_logout_redirect_url_points_to_application_root():
-    """Logout uses the application root as the temporary default."""
-    assert settings.LOGOUT_REDIRECT_URL == "/"
+def test_logout_redirect_url_uses_core_home_route():
+    """Logout redirects to the public Vocabio home route."""
+    assert settings.LOGOUT_REDIRECT_URL == "core:home"
 
 
 def test_authentication_backends_include_axes_first():
