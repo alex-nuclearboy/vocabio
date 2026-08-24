@@ -52,6 +52,7 @@ The current project has the following structure:
    ├── config/
    │   ├── __init__.py
    │   ├── asgi.py
+   │   ├── logging.py
    │   ├── settings.py
    │   ├── urls.py
    │   └── wsgi.py
@@ -76,6 +77,8 @@ The current project has the following structure:
    │   ├── assertions.py
    │   ├── test_authentication_settings.py
    │   ├── test_database.py
+   │   ├── test_logging.py
+   │   ├── test_request.py
    │   └── test_settings.py
    ├── .dockerignore
    ├── .env.example
@@ -105,9 +108,26 @@ The package currently contains:
    config/
    ├── __init__.py
    ├── asgi.py
+   ├── logging.py
    ├── settings.py
    ├── urls.py
    └── wsgi.py
+
+``config/logging.py``
+~~~~~~~~~~~~~~~~~~~~~
+
+Builds the project-wide Django logging configuration.
+
+Local development uses coloured console output and a rotating plain-text
+log file. Production uses plain console output without persistent log files
+inside the application container.
+
+The configuration defines separate thresholds for Django, django-axes,
+Vocabio application packages, and the dedicated ``vocabio.audit`` logger
+namespace.
+
+The logging policy and audit event conventions are documented in
+:doc:`logging`.
 
 ``config/settings.py``
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -317,6 +337,7 @@ The current project-level test package contains:
    ├── assertions.py
    ├── test_authentication_settings.py
    ├── test_database.py
+   ├── test_logging.py
    ├── test_request.py
    └── test_settings.py
 
@@ -329,6 +350,10 @@ policy, and client IP resolution configuration.
 
 ``tests/test_database.py`` verifies real Django connectivity to PostgreSQL
 and confirms that the configured connection uses the PostgreSQL backend.
+
+``tests/test_logging.py`` verifies development and production logging
+configuration, logger thresholds, local file rotation, console formatting,
+and audit logger availability.
 
 ``tests/test_request.py`` verifies project-wide client IP resolution,
 including forwarded-address handling, proxy ordering, IPv6 normalisation,

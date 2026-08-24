@@ -14,6 +14,7 @@ from datetime import timedelta
 import environ
 from django.core.exceptions import ImproperlyConfigured
 
+from config.logging import build_logging_config
 
 # ---------------------------------------------------------------------------
 # Project paths
@@ -451,3 +452,13 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
+LOGGING = build_logging_config(
+    base_dir=BASE_DIR,
+    debug=DEBUG,
+)

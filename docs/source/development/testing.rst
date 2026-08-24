@@ -138,6 +138,10 @@ behaviour, including:
 * IPv6 address normalisation;
 * rejection of unusable IP address values.
 
+``tests/test_logging.py`` verifies development and production logging
+configuration, logger thresholds, local file rotation, console formatting,
+and audit logger availability.
+
 Core application tests
 ----------------------
 
@@ -280,6 +284,7 @@ For example:
    ├── assertions.py
    ├── test_authentication_settings.py
    ├── test_database.py
+   ├── test_logging.py
    ├── test_request.py
    └── test_settings.py
 

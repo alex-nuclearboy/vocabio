@@ -13,3 +13,4 @@ introduced.
 
    structure
    authentication
+   logging
