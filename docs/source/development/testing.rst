@@ -84,6 +84,7 @@ The current configuration tests cover behaviour such as:
 * environment variable handling;
 * production host validation;
 * CSRF trusted-origin normalisation;
+* trusted proxy HTTPS header configuration;
 * secure cookie requirements;
 * HSTS configuration validation;
 * authentication, lockout, and redirect settings;
@@ -168,6 +169,7 @@ routes.
 * public home-page availability;
 * GET-only behaviour for project-level endpoints;
 * liveness responses;
+* liveness handling for trusted forwarded HTTPS requests;
 * readiness responses when PostgreSQL is available;
 * HTTP 503 responses when PostgreSQL is unavailable;
 * HTTP 503 responses when the database probe returns an unexpected result;

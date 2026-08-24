@@ -231,7 +231,8 @@ responses, database availability, and health-response cache behaviour.
 The production Koyeb Service uses the ``/health/live/`` endpoint for its HTTP
 health check. The probe supplies the public Koyeb hostname through the
 ``Host`` header so that the request satisfies Django's ``ALLOWED_HOSTS``
-validation.
+validation and sends ``X-Forwarded-Proto: https`` so that Django treats the
+probe as secure.
 
 The ``/health/ready/`` endpoint remains separate and verifies PostgreSQL
 connectivity without making database availability part of the platform
@@ -399,10 +400,7 @@ Application-specific tests are stored inside the corresponding application
 package, while the top-level ``tests`` package contains project-level
 configuration and infrastructure tests together with shared test support.
 
-``tests/__init__.py``
-~~~~~~~~~~~~~~~~~~~~~
-
-Marks ``tests`` as a Python package.
+``tests/__init__.py`` marks ``tests`` as a Python package.
 
 Continuous integration
 ----------------------

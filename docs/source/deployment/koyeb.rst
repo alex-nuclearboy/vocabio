@@ -499,7 +499,8 @@ that:
 * Gunicorn starts successfully from the Dockerfile runtime command;
 * the application is reachable through the ``.koyeb.app`` HTTPS URL;
 * the Koyeb HTTP health check for ``/health/live/`` passes with the public
-  Koyeb hostname supplied as the ``Host`` header;
+  Koyeb hostname supplied as the ``Host`` header and
+  ``X-Forwarded-Proto: https`` supplied as the forwarded protocol header;
 * HTTPS redirection does not create a redirect loop;
 * Django static files are served correctly;
 * the pooled Neon database connection is available as ``DATABASE_URL``;
