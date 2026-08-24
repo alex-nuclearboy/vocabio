@@ -184,4 +184,5 @@ jobs:
           docker run --rm --entrypoint gunicorn vocabio:ci --version
           test "$(docker run --rm --entrypoint id vocabio:ci -u)" = "10001"
           docker run --rm --entrypoint sh vocabio:ci -c 'test -d /app/staticfiles'
+          docker run --rm --entrypoint sh vocabio:ci -c '! test -d /app/logs'
           docker run --rm --entrypoint sh vocabio:ci -c '! command -v poetry'

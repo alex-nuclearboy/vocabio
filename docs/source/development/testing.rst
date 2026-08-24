@@ -198,7 +198,8 @@ including field labels and browser credential metadata.
 
 ``test_audit.py`` verifies structured audit events for successful login,
 logout, and authentication lockout responses, including resolved client IP
-addresses and lockout request paths.
+addresses and lockout request paths. It also verifies that anonymous logout
+attempts do not emit logout audit events.
 
 ``test_lockout.py`` verifies the authentication lockout policy, including:
 
@@ -221,7 +222,8 @@ namespaced Django route names.
 * valid and invalid credentials;
 * inactive-user rejection;
 * authenticated-user redirect behaviour;
-* POST-only logout;
+* authenticated POST-only logout;
+* anonymous logout redirection;
 * CSRF rejection for authentication POST requests;
 * login-page cache-control behaviour;
 * authenticated-session termination on logout.

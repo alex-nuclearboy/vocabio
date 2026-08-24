@@ -26,7 +26,11 @@ RUN poetry sync \
 COPY . .
 
 RUN DJANGO_SECRET_KEY=build-only-secret-key \
-    DJANGO_DEBUG=True \
+    DJANGO_DEBUG=False \
+    DJANGO_ALLOWED_HOSTS=localhost \
+    DJANGO_SECURE_SSL_REDIRECT=True \
+    DJANGO_SESSION_COOKIE_SECURE=True \
+    DJANGO_CSRF_COOKIE_SECURE=True \
     DATABASE_URL=postgresql://vocabio:vocabio@localhost:5432/vocabio \
     .venv/bin/python manage.py collectstatic --noinput
 

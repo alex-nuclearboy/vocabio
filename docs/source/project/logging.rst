@@ -5,8 +5,8 @@ Overview
 --------
 
 Vocabio uses Python and Django logging for runtime diagnostics and a
-dedicated audit logger namespace for security-relevant and data-changing
-application events.
+dedicated audit logger namespace for security-relevant events and, as domain
+mutation features are introduced, data-changing application events.
 
 Logging configuration is built in ``config/logging.py`` and applied through
 the Django ``LOGGING`` setting.
@@ -55,9 +55,11 @@ Regular application code uses module-based logger names such as:
 * ``core``;
 * ``infrastructure``.
 
-Audit events use the dedicated ``vocabio.audit`` namespace, with
-application-specific child loggers such as ``vocabio.audit.accounts`` and
-``vocabio.audit.words``.
+Audit events use the dedicated ``vocabio.audit`` namespace. Current
+authentication audit events use the ``vocabio.audit.accounts`` child logger.
+
+Additional application-specific child loggers can be introduced when
+corresponding audit behaviour is implemented.
 
 Audit event convention
 ----------------------
@@ -69,10 +71,10 @@ Examples include:
 
 .. code-block:: text
 
-   [AUTH|LOGIN] user_id=4 client_ip=203.0.113.10
-   [AUTH|LOGOUT] user_id=4 client_ip=203.0.113.10
-   [AUTH|LOCKOUT] username="editor" client_ip=203.0.113.10 path="/login/"
-   [ACCESS|DENIED] user_id=4 client_ip=203.0.113.10
+   [AUTH|LOGIN] user_id=4 client_ip="203.0.113.10"
+   [AUTH|LOGOUT] user_id=4 client_ip="203.0.113.10"
+   [AUTH|LOCKOUT] username="editor" client_ip="203.0.113.10" path="/login/"
+   [ACCESS|DENIED] user_id=4 client_ip="203.0.113.10"
 
 Event subjects use singular names and stable uppercase identifiers.
 

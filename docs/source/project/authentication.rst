@@ -124,6 +124,10 @@ Logout behaviour
 
 Logout is a state-changing operation and therefore accepts ``POST`` only.
 
+Logout also requires an authenticated user. Anonymous POST requests are
+redirected to the configured login route without producing an
+``[AUTH|LOGOUT]`` audit event.
+
 A successful logout terminates the authenticated Django session and
 redirects the user to ``LOGOUT_REDIRECT_URL``.
 
@@ -141,7 +145,7 @@ The current authentication security properties include:
 
 * CSRF protection for authentication POST requests;
 * a CSRF token in the login form;
-* POST-only logout;
+* authenticated POST-only logout;
 * prevention of caching for authentication responses;
 * sensitive handling of submitted password data in Django error reports;
 * structured audit logging for successful login, logout, and lockout events;

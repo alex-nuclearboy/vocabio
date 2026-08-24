@@ -242,6 +242,17 @@ def test_logout_requires_post(client):
     assert response.status_code == 405
 
 
+def test_anonymous_user_cannot_log_out(client):
+    """Anonymous users are redirected to login from the logout endpoint."""
+    response = client.post(
+        reverse("accounts:logout"),
+        secure=True,
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("accounts:login")
+
+
 def test_logout_rejects_post_without_csrf(django_user_model):
     """Logout rejects POST requests without a valid CSRF token."""
     user = django_user_model.objects.create_user(

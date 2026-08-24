@@ -22,7 +22,8 @@ The deployment uses:
 * WhiteNoise for collected static files;
 * Neon PostgreSQL for the application database;
 * Koyeb Secrets for sensitive production values;
-* the Koyeb-provided public domain for Django host and CSRF configuration.
+* the Koyeb-provided public domain for Django host, CSRF, and HTTP
+  health-check configuration.
 
 The Neon database configuration is documented in :doc:`neon`.
 
@@ -344,6 +345,9 @@ its configured database connection.
 The resulting value is used both as the allowed Django host and as the HTTPS
 CSRF trusted origin.
 
+The HTTP health check must use the same public hostname in its ``Host``
+header so that the probe satisfies Django's ``ALLOWED_HOSTS`` validation.
+
 The Django environment variables used by the application are documented in
 :doc:`../configuration/environment`.
 
@@ -400,8 +404,33 @@ defined explicitly. The Dockerfile runtime command reads this value at runtime.
 
 Do not define a separate ``PORT`` environment variable.
 
-Keep the default TCP health check until Vocabio defines an
-application-specific health endpoint.
+Configure the exposed application port to use an HTTP health check with the
+following values:
+
+.. code-block:: text
+
+   Protocol: HTTP
+   Method: GET
+   Path: /health/live/
+   Header:
+       Host: <public-koyeb-domain>
+
+Replace ``<public-koyeb-domain>`` with the actual public Koyeb hostname used
+by the deployed Service, without ``https://`` or a trailing slash.
+
+The explicit ``Host`` header is required because Django validates incoming
+hostnames against ``DJANGO_ALLOWED_HOSTS``. Without the public Koyeb hostname
+in the health-check request, Django can reject the probe with an
+``Invalid HTTP_HOST header`` error and the Instance will fail its health
+check.
+
+The liveness endpoint verifies that the Django application process can
+respond without depending on PostgreSQL availability. Koyeb uses this health
+check during Deployment startup and to identify unresponsive Instances.
+
+The separate ``/health/ready/`` endpoint verifies database connectivity and
+is available for readiness diagnostics without making temporary external
+database failures trigger application restarts.
 
 The public route should forward the application root path to the exposed
 HTTP port.
@@ -458,6 +487,8 @@ that:
 * the final runtime image is created;
 * Gunicorn starts successfully from the Dockerfile runtime command;
 * the application is reachable through the ``.koyeb.app`` HTTPS URL;
+* the Koyeb HTTP health check for ``/health/live/`` passes with the public
+  Koyeb hostname supplied as the ``Host`` header;
 * HTTPS redirection does not create a redirect loop;
 * Django static files are served correctly;
 * the pooled Neon database connection is available as ``DATABASE_URL``;
@@ -465,9 +496,14 @@ that:
 * production migrations have been applied with the direct connection;
 * the Django administration page is available at ``/admin/``.
 
-The application root URL can return ``404 Not Found`` until Vocabio defines
-a root route. This does not indicate a failed deployment when the configured
-application routes, such as ``/admin/``, are working correctly.
+The public application root at ``/`` should return HTTP 200 from the Vocabio
+home route.
+
+The application health endpoints should also be available:
+
+* ``/health/live/`` returns HTTP 200 when the application process is running;
+* ``/health/ready/`` returns HTTP 200 when the application can access
+  PostgreSQL.
 
 Automatic redeployment
 ----------------------

@@ -318,9 +318,9 @@ and returns the configured lockout response.
 
 ``accounts/views.py`` implements login and logout behaviour using Django's
 standard authentication and session framework. Login supports validated
-local ``next`` redirects, while logout accepts ``POST`` requests only.
-Successful login and logout operations emit structured authentication audit
-events.
+local ``next`` redirects, while logout requires an authenticated ``POST``
+request. Successful login and logout operations emit structured
+authentication audit events.
 
 ``accounts/templates/accounts/login.html`` contains the current login page.
 The form uses CSRF protection, displays form validation errors, and preserves

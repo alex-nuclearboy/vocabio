@@ -71,6 +71,21 @@ def test_logout_emits_audit_event(
     )
 
 
+@patch("accounts.views.audit_logger.info")
+def test_anonymous_logout_does_not_emit_audit_event(
+    mock_audit_info,
+    client,
+):
+    """Anonymous logout attempts do not emit logout audit events."""
+    response = client.post(
+        reverse("accounts:logout"),
+        secure=True,
+    )
+
+    assert response.status_code == 302
+    mock_audit_info.assert_not_called()
+
+
 @patch("accounts.security.audit_logger.warning")
 def test_lockout_emits_audit_event(
     mock_audit_warning,

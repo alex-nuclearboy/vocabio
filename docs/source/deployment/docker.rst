@@ -89,6 +89,9 @@ Django static files are collected while the image is built.
 The Dockerfile provides non-sensitive build-only Django settings so that
 ``config.settings`` can be initialised without exposing production Secrets.
 
+The build uses production-mode Django settings so that local development
+file logging is not enabled while static files are collected.
+
 The build runs:
 
 .. code-block:: console
@@ -143,6 +146,9 @@ files that are not required by the production image.
 
 In particular, the local ``.env`` file must never be copied into the
 production image.
+
+Local runtime logs under ``logs/`` are also excluded from the Docker build
+context and are not included in the production image.
 
 Local image validation
 ----------------------

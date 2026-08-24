@@ -4,6 +4,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -80,13 +81,10 @@ def login_view(request: HttpRequest) -> HttpResponse:
 @csrf_protect
 @never_cache
 @require_POST
+@login_required(redirect_field_name=None)
 def logout_view(request: HttpRequest) -> HttpResponse:
     """Log out the current user and redirect to the configured destination."""
-    user_id = (
-        request.user.pk
-        if request.user.is_authenticated
-        else None
-    )
+    user_id = request.user.pk
     client_ip = get_client_ip(request)
 
     logout(request)

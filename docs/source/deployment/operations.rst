@@ -353,16 +353,14 @@ After a deployment and any required migrations, verify that:
 * the Deployment reaches a healthy running state;
 * Gunicorn starts without runtime errors;
 * the public ``.koyeb.app`` HTTPS domain responds;
+* the public application root at ``/`` returns HTTP 200;
+* ``/health/live/`` returns HTTP 200;
+* ``/health/ready/`` returns HTTP 200 when PostgreSQL is available;
 * HTTPS redirection does not loop;
 * Django static files are served correctly;
 * ``/admin/`` loads successfully;
 * database-backed pages can read and write expected data;
 * no migration errors appear in the runtime logs.
-
-The application root can return ``404 Not Found`` until Vocabio defines a
-root URL. A working ``/admin/`` page and normal application routes are
-sufficient to confirm that this specific response is not a deployment
-failure.
 
 Verify database connectivity
 ----------------------------
@@ -413,6 +411,31 @@ Review the runtime logs and confirm that:
 * ``PORT`` is supplied by Koyeb;
 * required production environment variables are present;
 * referenced Secrets exist and are accessible to the Service.
+
+Health-check failure
+~~~~~~~~~~~~~~~~~~~~
+
+If a new Instance remains unhealthy while Gunicorn starts normally, verify
+the Koyeb HTTP health-check configuration.
+
+The current Service uses:
+
+.. code-block:: text
+
+   Protocol: HTTP
+   Method: GET
+   Path: /health/live/
+   Header:
+       Host: <public-koyeb-domain>
+
+The ``Host`` value must be the actual public Koyeb hostname of the Service,
+without ``https://`` or a trailing slash.
+
+If the health-check request uses another hostname, Django can reject the
+probe with an ``Invalid HTTP_HOST header`` error because the host does not
+satisfy the configured ``DJANGO_ALLOWED_HOSTS`` policy.
+
+The complete Koyeb health-check configuration is documented in :doc:`koyeb`.
 
 Database connection failure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

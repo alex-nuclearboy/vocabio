@@ -278,6 +278,8 @@ The job:
 * verifies that Python and Gunicorn are available in the final image;
 * verifies that the container runs as the expected non-root user;
 * verifies that collected static files are present;
+* verifies that the local ``logs`` directory is absent from the runtime
+  image;
 * verifies that Poetry is not included in the runtime image.
 
 The build runs:
