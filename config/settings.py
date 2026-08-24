@@ -394,6 +394,8 @@ AXES_LOCKOUT_PARAMETERS = [
     ["username", "ip_address"],
 ]
 
+AXES_LOCKOUT_CALLABLE = "accounts.security.login_lockout_response"
+
 AXES_IPWARE_META_PRECEDENCE_ORDER = (
     CLIENT_IP_META_PRECEDENCE_ORDER
 )

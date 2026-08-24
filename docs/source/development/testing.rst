@@ -142,6 +142,10 @@ behaviour, including:
 configuration, logger thresholds, local file rotation, console formatting,
 and audit logger availability.
 
+``tests/test_audit.py`` verifies structured audit-event formatting,
+including typed values, quoted strings, newline escaping, and events without
+additional fields.
+
 Core application tests
 ----------------------
 
@@ -183,6 +187,7 @@ The current authentication test package contains:
 
    accounts/tests/
    ├── __init__.py
+   ├── test_audit.py
    ├── test_forms.py
    ├── test_lockout.py
    ├── test_urls.py
@@ -190,6 +195,10 @@ The current authentication test package contains:
 
 ``test_forms.py`` verifies Vocabio-specific login form configuration,
 including field labels and browser credential metadata.
+
+``test_audit.py`` verifies structured audit events for successful login,
+logout, and authentication lockout responses, including resolved client IP
+addresses and lockout request paths.
 
 ``test_lockout.py`` verifies the authentication lockout policy, including:
 
@@ -282,6 +291,7 @@ For example:
    tests/
    ├── __init__.py
    ├── assertions.py
+   ├── test_audit.py
    ├── test_authentication_settings.py
    ├── test_database.py
    ├── test_logging.py
@@ -297,6 +307,7 @@ For example:
    accounts/
    └── tests/
        ├── __init__.py
+       ├── test_audit.py
        ├── test_forms.py
        ├── test_lockout.py
        ├── test_urls.py

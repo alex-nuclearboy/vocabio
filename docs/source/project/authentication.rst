@@ -102,6 +102,9 @@ Login behaviour
 
 Successful authentication creates the normal Django session.
 
+Successful authentication also emits an ``[AUTH|LOGIN]`` audit event with
+the authenticated user ID and resolved client IP address.
+
 When a safe ``next`` value is supplied, successful authentication redirects
 the user to that local target. Without a valid ``next`` target, the
 configured ``LOGIN_REDIRECT_URL`` is used.
@@ -124,6 +127,10 @@ Logout is a state-changing operation and therefore accepts ``POST`` only.
 A successful logout terminates the authenticated Django session and
 redirects the user to ``LOGOUT_REDIRECT_URL``.
 
+Before the session is terminated, Vocabio captures the authenticated user ID
+and resolved client IP address. Successful logout then emits an
+``[AUTH|LOGOUT]`` audit event containing those values.
+
 Security
 --------
 
@@ -137,6 +144,7 @@ The current authentication security properties include:
 * POST-only logout;
 * prevention of caching for authentication responses;
 * sensitive handling of submitted password data in Django error reports;
+* structured audit logging for successful login, logout, and lockout events;
 * Django's standard password authentication;
 * rejection of unsafe external ``next`` redirect targets;
 * inactive-user rejection;
@@ -169,6 +177,15 @@ The current lockout policy is:
 * the same lockout policy protects both the Vocabio login view and Django
   Admin.
 
+Axes delegates lockout-response handling to
+``accounts.security.login_lockout_response``. The callable records an
+``[AUTH|LOCKOUT]`` audit event and returns the configured HTTP lockout
+response without taking ownership of the lockout decision itself.
+
+The lockout event records the attempted username, resolved client IP
+address, and request path. Individual failed attempts remain tracked by
+``django-axes`` and are not duplicated as application audit events.
+
 Client IP addresses are resolved through ``django-ipware``.
 ``HTTP_X_FORWARDED_FOR`` is preferred, with ``REMOTE_ADDR`` used as a
 fallback. Forwarded addresses are resolved using the rightmost address so
@@ -199,5 +216,6 @@ Related documentation
 See also:
 
 * :doc:`structure`
+* :doc:`logging`
 * :doc:`../development/testing`
 * :doc:`../configuration/environment`

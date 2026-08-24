@@ -22,6 +22,7 @@ The current project has the following structure:
    │   │       └── login.html
    │   ├── tests/
    │   │   ├── __init__.py
+   │   │   ├── test_audit.py
    │   │   ├── test_forms.py
    │   │   ├── test_lockout.py
    │   │   ├── test_urls.py
@@ -31,6 +32,7 @@ The current project has the following structure:
    │   ├── apps.py
    │   ├── forms.py
    │   ├── models.py
+   │   ├── security.py
    │   ├── urls.py
    │   └── views.py
    ├── core/
@@ -71,10 +73,12 @@ The current project has the following structure:
    │   └── make.bat
    ├── infrastructure/
    │   ├── __init__.py
+   │   ├── audit.py
    │   └── request.py
    ├── tests/
    │   ├── __init__.py
    │   ├── assertions.py
+   │   ├── test_audit.py
    │   ├── test_authentication_settings.py
    │   ├── test_database.py
    │   ├── test_logging.py
@@ -243,7 +247,11 @@ The current package structure is:
 
    infrastructure/
    ├── __init__.py
+   ├── audit.py
    └── request.py
+
+``infrastructure/audit.py`` provides shared formatting for structured audit
+events.
 
 ``infrastructure/request.py`` provides shared client IP resolution for
 application code.
@@ -281,6 +289,7 @@ The current application structure is:
    │       └── login.html
    ├── tests/
    │   ├── __init__.py
+   │   ├── test_audit.py
    │   ├── test_forms.py
    │   ├── test_lockout.py
    │   ├── test_urls.py
@@ -290,6 +299,7 @@ The current application structure is:
    ├── apps.py
    ├── forms.py
    ├── models.py
+   ├── security.py
    ├── urls.py
    └── views.py
 
@@ -299,11 +309,18 @@ The current application structure is:
 Django's standard ``AuthenticationForm`` and configures the username and
 password fields for the Vocabio authentication interface.
 
+``accounts/security.py`` integrates application-level audit logging with
+django-axes lockout responses. Axes remains responsible for determining
+lockout state, while the helper records structured ``[AUTH|LOCKOUT]`` events
+and returns the configured lockout response.
+
 ``accounts/urls.py`` defines the namespaced login and logout routes.
 
 ``accounts/views.py`` implements login and logout behaviour using Django's
 standard authentication and session framework. Login supports validated
 local ``next`` redirects, while logout accepts ``POST`` requests only.
+Successful login and logout operations emit structured authentication audit
+events.
 
 ``accounts/templates/accounts/login.html`` contains the current login page.
 The form uses CSRF protection, displays form validation errors, and preserves
@@ -314,10 +331,10 @@ application-specific behaviour. The application uses Django's built-in user
 model rather than defining an account model of its own.
 
 Application-specific tests are stored in ``accounts/tests``. They cover the
-login form, URL configuration, authentication views, redirect safety, CSRF
-behaviour, cache-control behaviour, session behaviour, inactive-user
-rejection, login-attempt lockout behaviour, client IP handling, and Django
-Admin lockout protection.
+login form, URL configuration, authentication views, authentication audit
+events, redirect safety, CSRF behaviour, cache-control behaviour, session
+behaviour, inactive-user rejection, login-attempt lockout behaviour, client
+IP handling, and Django Admin lockout protection.
 
 Detailed authentication behaviour and the project authorisation policy are
 documented in :doc:`authentication`.
@@ -335,6 +352,7 @@ The current project-level test package contains:
    tests/
    ├── __init__.py
    ├── assertions.py
+   ├── test_audit.py
    ├── test_authentication_settings.py
    ├── test_database.py
    ├── test_logging.py
@@ -344,9 +362,14 @@ The current project-level test package contains:
 ``tests/assertions.py`` contains reusable assertions shared by application
 test suites.
 
+``tests/test_audit.py`` verifies structured audit-event formatting,
+including typed values, quoted strings, newline escaping, and events without
+additional fields.
+
 ``tests/test_authentication_settings.py`` verifies the project-level
 authentication routing, redirect settings, authentication backends, lockout
-policy, and client IP resolution configuration.
+policy, lockout-response integration, and client IP resolution
+configuration.
 
 ``tests/test_database.py`` verifies real Django connectivity to PostgreSQL
 and confirms that the configured connection uses the PostgreSQL backend.

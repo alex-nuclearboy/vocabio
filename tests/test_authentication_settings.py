@@ -81,3 +81,11 @@ def test_axes_uses_shared_client_ip_policy():
         settings.AXES_IPWARE_PROXY_ORDER
         == settings.CLIENT_IP_PROXY_ORDER
     )
+
+
+def test_axes_uses_application_lockout_callable():
+    """Axes delegates lockout responses to the accounts application."""
+    assert (
+        settings.AXES_LOCKOUT_CALLABLE
+        == "accounts.security.login_lockout_response"
+    )

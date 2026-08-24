@@ -71,7 +71,7 @@ Examples include:
 
    [AUTH|LOGIN] user_id=4 client_ip=203.0.113.10
    [AUTH|LOGOUT] user_id=4 client_ip=203.0.113.10
-   [AUTH|LOCKOUT] username="editor" client_ip=203.0.113.10
+   [AUTH|LOCKOUT] username="editor" client_ip=203.0.113.10 path="/login/"
    [ACCESS|DENIED] user_id=4 client_ip=203.0.113.10
 
 Event subjects use singular names and stable uppercase identifiers.
@@ -79,6 +79,30 @@ Event subjects use singular names and stable uppercase identifiers.
 The event identifier describes what happened, while the logging level
 describes its severity. Informational authentication and domain mutation
 events use ``INFO``. Lockouts and denied access use ``WARNING``.
+
+Current authentication audit events
+-----------------------------------
+
+Vocabio currently emits the following application audit events:
+
+``[AUTH|LOGIN]``
+   Records successful authentication with the authenticated user ID and
+   resolved client IP address.
+
+``[AUTH|LOGOUT]``
+   Records the end of an authenticated application session with the user ID
+   and resolved client IP address.
+
+``[AUTH|LOCKOUT]``
+   Records an authentication attempt rejected by django-axes lockout
+   handling. The event includes the attempted username, resolved client IP
+   address, and request path.
+
+Lockout events are emitted when django-axes produces a lockout response,
+including requests rejected while an existing lockout remains active.
+
+Individual failed authentication attempts remain tracked by ``django-axes``
+and are not duplicated as separate Vocabio audit events.
 
 Sensitive data
 --------------
@@ -109,3 +133,12 @@ Vocabio application logs.
 No automated django-axes retention task is currently configured. Database
 log retention will be reviewed separately when operational requirements
 justify scheduled maintenance.
+
+Related documentation
+---------------------
+
+See also:
+
+* :doc:`authentication`
+* :doc:`structure`
+* :doc:`../development/testing`

@@ -1,17 +1,23 @@
 """Authentication views for the accounts application."""
 
-from django.conf import settings
+import logging
 
+from django.conf import settings
 from django.contrib.auth import login, logout
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.http import require_http_methods, require_POST
 
 from accounts.forms import LoginForm
+from infrastructure.audit import format_audit_event
+from infrastructure.request import get_client_ip
+
+
+audit_logger = logging.getLogger("vocabio.audit.accounts")
 
 
 def _get_safe_next_url(request: HttpRequest) -> str:
@@ -45,7 +51,20 @@ def login_view(request: HttpRequest) -> HttpResponse:
     )
 
     if request.method == "POST" and form.is_valid():
-        login(request, form.get_user())
+        user = form.get_user()
+
+        login(request, user)
+
+        audit_logger.info(
+            format_audit_event(
+                "[AUTH|LOGIN]",
+                {
+                    "user_id": user.pk,
+                    "client_ip": get_client_ip(request),
+                },
+            )
+        )
+
         return redirect(next_url or settings.LOGIN_REDIRECT_URL)
 
     return render(
@@ -63,5 +82,23 @@ def login_view(request: HttpRequest) -> HttpResponse:
 @require_POST
 def logout_view(request: HttpRequest) -> HttpResponse:
     """Log out the current user and redirect to the configured destination."""
+    user_id = (
+        request.user.pk
+        if request.user.is_authenticated
+        else None
+    )
+    client_ip = get_client_ip(request)
+
     logout(request)
+
+    audit_logger.info(
+        format_audit_event(
+            "[AUTH|LOGOUT]",
+            {
+                "user_id": user_id,
+                "client_ip": client_ip,
+            },
+        )
+    )
+
     return redirect(settings.LOGOUT_REDIRECT_URL)
