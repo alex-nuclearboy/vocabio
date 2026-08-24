@@ -58,14 +58,26 @@ def test_axes_lockout_uses_username_and_ip_address():
     ]
 
 
-def test_axes_ipware_uses_forwarded_ip_with_remote_fallback():
-    """IP resolution prefers forwarded addresses with REMOTE_ADDR fallback."""
-    assert settings.AXES_IPWARE_META_PRECEDENCE_ORDER == (
+def test_client_ip_policy_prefers_forwarded_address():
+    """Client IP resolution prefers forwarded addresses."""
+    assert settings.CLIENT_IP_META_PRECEDENCE_ORDER == (
         "HTTP_X_FORWARDED_FOR",
         "REMOTE_ADDR",
     )
 
 
-def test_axes_ipware_uses_rightmost_proxy_address():
-    """Forwarded address resolution uses the rightmost trusted address."""
-    assert settings.AXES_IPWARE_PROXY_ORDER == "right-most"
+def test_client_ip_policy_uses_rightmost_forwarded_address():
+    """Client IP resolution uses the rightmost forwarded address."""
+    assert settings.CLIENT_IP_PROXY_ORDER == "right-most"
+
+
+def test_axes_uses_shared_client_ip_policy():
+    """Axes uses the project-wide client IP resolution policy."""
+    assert (
+        settings.AXES_IPWARE_META_PRECEDENCE_ORDER
+        == settings.CLIENT_IP_META_PRECEDENCE_ORDER
+    )
+    assert (
+        settings.AXES_IPWARE_PROXY_ORDER
+        == settings.CLIENT_IP_PROXY_ORDER
+    )

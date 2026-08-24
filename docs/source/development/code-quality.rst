@@ -30,7 +30,7 @@ Run Pylint with:
 
 .. code-block:: console
 
-   poetry run pylint config core accounts tests manage.py docs/source/conf.py
+   poetry run pylint config core infrastructure accounts tests manage.py docs/source/conf.py
 
 The Pylint configuration is maintained in ``pyproject.toml``.
 
@@ -176,7 +176,7 @@ The complete local quality-check sequence is:
 
    poetry check
    poetry run python -m pip_audit --local
-   poetry run pylint config core accounts tests manage.py docs/source/conf.py
+   poetry run pylint config core infrastructure accounts tests manage.py docs/source/conf.py
    poetry run python manage.py check
    poetry run python manage.py makemigrations --check --dry-run
    poetry run python manage.py collectstatic --noinput

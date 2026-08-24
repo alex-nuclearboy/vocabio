@@ -124,6 +124,20 @@ project-wide coverage:
 Tests that do not establish a database connection do not require the local
 PostgreSQL service to be running.
 
+Infrastructure tests
+--------------------
+
+Shared runtime infrastructure is tested through the top-level test suite.
+
+``tests/test_request.py`` verifies the project-wide client IP resolution
+behaviour, including:
+
+* fallback to ``REMOTE_ADDR``;
+* forwarded-address precedence;
+* right-most proxy-chain resolution;
+* IPv6 address normalisation;
+* rejection of unusable IP address values.
+
 Core application tests
 ----------------------
 
@@ -223,6 +237,7 @@ The current coverage scope includes:
 
 * ``config``;
 * ``core``;
+* ``infrastructure``;
 * ``accounts``.
 
 Branch coverage is enabled.
@@ -265,6 +280,7 @@ For example:
    ├── assertions.py
    ├── test_authentication_settings.py
    ├── test_database.py
+   ├── test_request.py
    └── test_settings.py
 
    core/

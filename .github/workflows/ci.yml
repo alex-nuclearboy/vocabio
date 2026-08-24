@@ -89,6 +89,7 @@ jobs:
           --output-format=github
           config
           core
+          infrastructure
           accounts
           tests
           manage.py

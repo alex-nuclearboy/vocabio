@@ -63,6 +63,23 @@ route is used.
 Successful logout also redirects to ``core:home`` after the authenticated
 session has been terminated.
 
+Client IP resolution
+--------------------
+
+Vocabio defines a project-wide client IP resolution policy in
+``config/settings.py``.
+
+Forwarded addresses are preferred over ``REMOTE_ADDR``, and the right-most
+forwarded address is selected for the current Koyeb proxy environment.
+
+The same policy is reused by ``django-axes`` so that application-level
+request handling and authentication lockout behaviour resolve client
+addresses consistently.
+
+Application code accesses the resolved client address through
+``infrastructure.request.get_client_ip`` rather than parsing proxy headers
+directly.
+
 Login form
 ----------
 

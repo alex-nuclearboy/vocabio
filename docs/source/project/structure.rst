@@ -68,6 +68,9 @@ The current project has the following structure:
    │   ├── Makefile
    │   ├── README.md
    │   └── make.bat
+   ├── infrastructure/
+   │   ├── __init__.py
+   │   └── request.py
    ├── tests/
    │   ├── __init__.py
    │   ├── assertions.py
@@ -205,6 +208,38 @@ The current health endpoints are application-level endpoints. The production
 Koyeb Service continues to use its existing platform health-check
 configuration unless that deployment policy is changed separately.
 
+Infrastructure package
+----------------------
+
+The ``infrastructure`` package contains shared technical runtime behaviour
+that does not belong to an individual Django application.
+
+It is a regular Python package rather than a Django application and is
+therefore not registered in ``INSTALLED_APPS``.
+
+The current package structure is:
+
+.. code-block:: text
+
+   infrastructure/
+   ├── __init__.py
+   └── request.py
+
+``infrastructure/request.py`` provides shared client IP resolution for
+application code.
+
+Client addresses are selected through ``django-ipware`` according to the
+project-wide proxy policy defined in ``config/settings.py``. Resolved IPv4
+and IPv6 addresses are validated and returned in canonical form. Invalid
+address values resolve to ``None``.
+
+The same proxy policy is reused by ``django-axes`` so that authentication
+lockout behaviour and application-level client IP handling remain
+consistent.
+
+The package is reserved for project-wide technical infrastructure. Domain-
+specific behaviour remains inside the corresponding Django application.
+
 Accounts application
 --------------------
 
@@ -282,6 +317,7 @@ The current project-level test package contains:
    ├── assertions.py
    ├── test_authentication_settings.py
    ├── test_database.py
+   ├── test_request.py
    └── test_settings.py
 
 ``tests/assertions.py`` contains reusable assertions shared by application
@@ -293,6 +329,10 @@ policy, and client IP resolution configuration.
 
 ``tests/test_database.py`` verifies real Django connectivity to PostgreSQL
 and confirms that the configured connection uses the PostgreSQL backend.
+
+``tests/test_request.py`` verifies project-wide client IP resolution,
+including forwarded-address handling, proxy ordering, IPv6 normalisation,
+and invalid address rejection.
 
 ``tests/test_settings.py`` verifies environment handling and project
 configuration, including PostgreSQL database URL validation and related

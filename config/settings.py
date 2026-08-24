@@ -372,6 +372,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Authentication
 # ---------------------------------------------------------------------------
 
+CLIENT_IP_META_PRECEDENCE_ORDER = (
+    "HTTP_X_FORWARDED_FOR",
+    "REMOTE_ADDR",
+)
+
+CLIENT_IP_PROXY_ORDER = "right-most"
+
 AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesStandaloneBackend",
     "django.contrib.auth.backends.ModelBackend",
@@ -387,10 +394,9 @@ AXES_LOCKOUT_PARAMETERS = [
 ]
 
 AXES_IPWARE_META_PRECEDENCE_ORDER = (
-    "HTTP_X_FORWARDED_FOR",
-    "REMOTE_ADDR",
+    CLIENT_IP_META_PRECEDENCE_ORDER
 )
-AXES_IPWARE_PROXY_ORDER = "right-most"
+AXES_IPWARE_PROXY_ORDER = CLIENT_IP_PROXY_ORDER
 
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "core:home"

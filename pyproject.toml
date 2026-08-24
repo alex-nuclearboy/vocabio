@@ -59,7 +59,7 @@ min-similarity-lines = 4
 
 [tool.coverage.run]
 branch = true
-source = ["config", "core", "accounts"]
+source = ["config", "core", "accounts", "infrastructure"]
 omit = [
     "config/asgi.py",
     "config/wsgi.py",
