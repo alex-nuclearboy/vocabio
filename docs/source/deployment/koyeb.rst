@@ -409,11 +409,12 @@ following values:
 
 .. code-block:: text
 
-   Protocol: HTTP
-   Method: GET
-   Path: /health/live/
-   Header:
-       Host: <public-koyeb-domain>
+  Protocol: HTTP
+  Method: GET
+  Path: /health/live/
+  Headers:
+    Host: <public-koyeb-domain>
+    X-Forwarded-Proto: https
 
 Replace ``<public-koyeb-domain>`` with the actual public Koyeb hostname used
 by the deployed Service, without ``https://`` or a trailing slash.
@@ -423,6 +424,16 @@ hostnames against ``DJANGO_ALLOWED_HOSTS``. Without the public Koyeb hostname
 in the health-check request, Django can reject the probe with an
 ``Invalid HTTP_HOST header`` error and the Instance will fail its health
 check.
+
+The health check also sends ``X-Forwarded-Proto: https``. Vocabio trusts
+this header through ``SECURE_PROXY_SSL_HEADER`` so that Django treats the
+probe as secure and executes the liveness view instead of redirecting the
+request through ``SECURE_SSL_REDIRECT``.
+
+Without this header, Django can return an HTTPS redirect before the
+``/health/live/`` view is reached. Koyeb accepts ``3xx`` responses as healthy,
+so the probe could otherwise pass without actually exercising the
+application liveness endpoint.
 
 The liveness endpoint verifies that the Django application process can
 respond without depending on PostgreSQL availability. Koyeb uses this health

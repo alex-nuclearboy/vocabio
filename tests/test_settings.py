@@ -465,6 +465,16 @@ class TestSecurityConfiguration:
                 },
             )
 
+    def test_proxy_ssl_header_uses_forwarded_https(
+        self,
+        settings_module,
+    ):
+        """Trust the forwarded HTTPS protocol header."""
+        assert settings_module.SECURE_PROXY_SSL_HEADER == (
+            "HTTP_X_FORWARDED_PROTO",
+            "https",
+        )
+
     def test_allows_http_during_development(
         self,
         monkeypatch,

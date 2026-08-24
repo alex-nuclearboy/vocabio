@@ -431,8 +431,9 @@ The current Service uses:
    Protocol: HTTP
    Method: GET
    Path: /health/live/
-   Header:
-       Host: <public-koyeb-domain>
+   Headers:
+      Host: <public-koyeb-domain>
+      X-Forwarded-Proto: https
 
 The ``Host`` value must be the actual public Koyeb hostname of the Service,
 without ``https://`` or a trailing slash.
@@ -440,6 +441,12 @@ without ``https://`` or a trailing slash.
 If the health-check request uses another hostname, Django can reject the
 probe with an ``Invalid HTTP_HOST header`` error because the host does not
 satisfy the configured ``DJANGO_ALLOWED_HOSTS`` policy.
+
+If the ``Host`` header is accepted but the probe does not include
+``X-Forwarded-Proto: https``, Django can redirect the request to HTTPS before
+the liveness view is executed. Because Koyeb accepts ``3xx`` responses as
+successful health checks, include the forwarded protocol header so that the
+probe receives the liveness endpoint's HTTP 200 response directly.
 
 The complete Koyeb health-check configuration is documented in :doc:`koyeb`.
 

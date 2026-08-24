@@ -41,6 +41,23 @@ def test_liveness_reports_healthy_process(client):
     assert response.json() == {"status": "ok"}
 
 
+def test_liveness_accepts_forwarded_https(client, settings):
+    """The liveness endpoint accepts trusted forwarded HTTPS requests."""
+    settings.SECURE_SSL_REDIRECT = True
+    settings.SECURE_PROXY_SSL_HEADER = (
+        "HTTP_X_FORWARDED_PROTO",
+        "https",
+    )
+
+    response = client.get(
+        reverse("core:health-live"),
+        HTTP_X_FORWARDED_PROTO="https",
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_liveness_is_not_cached(client):
     """The liveness response prevents intermediary caching."""
     response = client.get(
