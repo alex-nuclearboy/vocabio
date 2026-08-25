@@ -12,4 +12,4 @@ The reference below is generated directly from the Python docstrings in the
 settings module.
 
 .. automodule:: config.settings
-   :members: get_str_env, build_database_config
+   :members: expand_database_url, get_str_env, build_database_config

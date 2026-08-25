@@ -366,7 +366,7 @@ The current deployment enables HTTPS redirection:
 
    DJANGO_SECURE_SSL_REDIRECT=True
 
-HSTS remains disabled initially:
+HSTS remains disabled for the current deployment:
 
 .. code-block:: text
 
@@ -374,12 +374,11 @@ HSTS remains disabled initially:
    DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=False
    DJANGO_SECURE_HSTS_PRELOAD=False
 
-Keeping HSTS disabled during the initial deployment avoids persisting an
-HSTS policy in browsers before the HTTPS and proxy configuration has been
-verified.
+The HTTPS and proxy configuration has been verified, but HSTS remains
+disabled until the long-term domain and HSTS policy are finalised.
 
-Enable HSTS only after the deployed HTTPS behaviour has been tested and the
-long-term domain configuration is stable.
+Enable HSTS only after that policy is explicitly finalised because browsers
+can retain an HSTS policy beyond an individual deployment.
 
 Configure ports and routing
 ---------------------------

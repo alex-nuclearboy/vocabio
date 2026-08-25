@@ -142,8 +142,9 @@ value is ``0``, which disables HSTS.
 
 Negative values are rejected.
 
-The local ``.env.example`` value is ``0``. HSTS should remain disabled until
-HTTPS behaviour has been verified in the deployment environment.
+The local ``.env.example`` value is ``0``. The current production deployment
+also keeps HSTS disabled until the long-term domain and HSTS policy are
+finalised.
 
 ``DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -5,8 +5,7 @@ Overview
 --------
 
 Vocabio uses Python and Django logging for runtime diagnostics and a
-dedicated audit logger namespace for security-relevant events and, as domain
-mutation features are introduced, data-changing application events.
+dedicated audit logger namespace for security-relevant application events.
 
 Logging configuration is built in ``config/logging.py`` and applied through
 the Django ``LOGGING`` setting.
@@ -74,13 +73,13 @@ Examples include:
    [AUTH|LOGIN] user_id=4 client_ip="203.0.113.10"
    [AUTH|LOGOUT] user_id=4 client_ip="203.0.113.10"
    [AUTH|LOCKOUT] username="editor" client_ip="203.0.113.10" path="/login/"
-   [ACCESS|DENIED] user_id=4 client_ip="203.0.113.10"
 
 Event subjects use singular names and stable uppercase identifiers.
 
 The event identifier describes what happened, while the logging level
-describes its severity. Informational authentication and domain mutation
-events use ``INFO``. Lockouts and denied access use ``WARNING``.
+describes its severity. Successful authentication events use ``INFO``, while
+lockout events use ``WARNING``. Additional event types should be documented
+when their corresponding behaviour is implemented.
 
 Current authentication audit events
 -----------------------------------

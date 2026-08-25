@@ -96,9 +96,10 @@ The current project has the following structure:
    ├── poetry.lock
    └── pyproject.toml
 
-The structure will expand as application-specific functionality is added.
-This page should describe only components that are part of the repository
-rather than anticipated future modules.
+This page documents only components that are part of the current repository.
+It should be updated when the repository structure changes rather than
+documenting anticipated future modules.
+
 
 Project configuration
 ---------------------
@@ -117,68 +118,59 @@ The package currently contains:
    ├── urls.py
    └── wsgi.py
 
-``config/logging.py``
-~~~~~~~~~~~~~~~~~~~~~
+``config/__init__.py`` marks ``config`` as a Python package.
 
-Builds the project-wide Django logging configuration.
-
-Local development uses coloured console output and a rotating plain-text
-log file. Production uses plain console output without persistent log files
-inside the application container.
-
-The configuration defines separate thresholds for Django, django-axes,
-Vocabio application packages, and the dedicated ``vocabio.audit`` logger
-namespace.
-
-The logging policy and audit event conventions are documented in
-:doc:`logging`.
-
-``config/settings.py``
-~~~~~~~~~~~~~~~~~~~~~~
-
-Contains the Django settings and the project-specific configuration helpers.
-
-It also defines the project authentication configuration, including
-authentication backends, login-attempt protection, the login route, and the
-named login and logout redirect destinations.
-
-Authentication behaviour and access-control policy are documented in
-:doc:`authentication`.
-
-Environment-specific and sensitive values are read from environment
-variables rather than being stored directly in the module.
-
-Environment variables are documented in
-:doc:`../configuration/environment`, while PostgreSQL-specific configuration
-and validation are documented in
-:doc:`../configuration/database`.
-
-The project-specific settings helpers are documented from their source
-docstrings in :doc:`../reference/settings`.
-
-``config/urls.py``
-~~~~~~~~~~~~~~~~~~
-
-Defines the root URL configuration for the Django project.
-
-The current root configuration includes the ``core`` and ``accounts`` URL
-namespaces at the application root and exposes Django Admin under
-``/admin/``.
+The remaining modules have the following responsibilities:
 
 ``config/asgi.py``
-~~~~~~~~~~~~~~~~~~
+   Exposes the ASGI application object used by ASGI-compatible servers.
 
-Exposes the ASGI application object used by ASGI-compatible servers.
+``config/logging.py``
+   Builds the project-wide Django logging configuration.
+
+   Local development uses coloured console output and a rotating plain-text
+   log file. Production uses plain console output without persistent log
+   files inside the application container.
+
+   The configuration defines separate thresholds for Django, django-axes,
+   Vocabio application packages, and the dedicated ``vocabio.audit`` logger
+   namespace.
+
+   The logging policy and audit event conventions are documented in
+   :doc:`logging`.
+
+``config/settings.py``
+   Contains the Django settings and the project-specific configuration
+   helpers.
+
+   It also defines the project authentication configuration, including
+   authentication backends, login-attempt protection, the login route, and
+   the named login and logout redirect destinations.
+
+   Authentication behaviour and access-control policy are documented in
+   :doc:`authentication`.
+
+   Environment-specific and sensitive values are read from environment
+   variables rather than being stored directly in the module.
+
+   Environment variables are documented in
+   :doc:`../configuration/environment`, while PostgreSQL-specific
+   configuration and validation are documented in
+   :doc:`../configuration/database`.
+
+   The project-specific settings helpers are documented from their source
+   docstrings in :doc:`../reference/settings`.
+
+``config/urls.py``
+   Defines the root URL configuration for the Django project.
+
+   The current root configuration includes the ``core`` and ``accounts`` URL
+   namespaces at the application root and exposes Django Admin under
+   ``/admin/``.
 
 ``config/wsgi.py``
-~~~~~~~~~~~~~~~~~~
+   Exposes the WSGI application object used by WSGI-compatible servers.
 
-Exposes the WSGI application object used by WSGI-compatible servers.
-
-``config/__init__.py``
-~~~~~~~~~~~~~~~~~~~~~~
-
-Marks ``config`` as a Python package.
 
 Core application
 ----------------
@@ -207,37 +199,43 @@ The current application structure is:
    ├── models.py
    └── urls.py
 
-``core/apps.py`` defines the Django application configuration.
+The ``__init__.py`` files mark their corresponding directories as Python
+packages.
 
-``core/urls.py`` defines the namespaced public home, liveness, and readiness
-routes.
+The application modules have the following responsibilities:
 
-``core/views/home.py`` provides the public application root.
+``core/apps.py``
+   Defines the Django application configuration.
 
-``core/views/health.py`` provides separate liveness and readiness endpoints.
-The liveness endpoint reports whether the Django application process can
-respond without accessing the database. The readiness endpoint additionally
-verifies access to the configured PostgreSQL database.
+``core/urls.py``
+   Defines the namespaced public home, liveness, and readiness routes.
 
-``core/admin.py`` and ``core/models.py`` currently contain no
-application-specific behaviour. They remain part of the standard Django
-application structure for future project-level models and Admin
-configuration if required.
+``core/views/home.py``
+   Provides the public application root.
+
+``core/views/health.py``
+   Provides separate liveness and readiness endpoints.
+
+   The liveness endpoint reports whether the Django application process can
+   respond without accessing the database. The readiness endpoint
+   additionally verifies access to the configured PostgreSQL database.
+
+``core/admin.py`` and ``core/models.py``
+   Currently contain no application-specific behaviour and remain part of
+   the standard Django application structure.
 
 Application-specific tests are stored in ``core/tests``. They cover URL
-configuration, home-page availability, HTTP method restrictions, health
-responses, database availability, and health-response cache behaviour.
+configuration, home-page availability, HTTP method restrictions, liveness
+and readiness behaviour, proxy-aware HTTPS handling, database availability,
+and health-response cache behaviour.
 
-The production Koyeb Service uses the ``/health/live/`` endpoint for its HTTP
-health check. The probe supplies the public Koyeb hostname through the
-``Host`` header so that the request satisfies Django's ``ALLOWED_HOSTS``
-validation and sends ``X-Forwarded-Proto: https`` so that Django treats the
-probe as secure.
+The production deployment uses ``/health/live/`` as the application
+liveness endpoint. The ``/health/ready/`` endpoint remains separate and
+verifies PostgreSQL connectivity.
 
-The ``/health/ready/`` endpoint remains separate and verifies PostgreSQL
-connectivity without making database availability part of the platform
-liveness check. The complete deployment configuration is documented in
+The complete deployment health-check configuration is documented in
 :doc:`../deployment/koyeb`.
+
 
 Infrastructure package
 ----------------------
@@ -257,23 +255,28 @@ The current package structure is:
    ├── audit.py
    └── request.py
 
-``infrastructure/audit.py`` provides shared formatting for structured audit
-events.
+``infrastructure/__init__.py`` marks ``infrastructure`` as a Python package.
 
-``infrastructure/request.py`` provides shared client IP resolution for
-application code.
+The package modules have the following responsibilities:
 
-Client addresses are selected through ``django-ipware`` according to the
-project-wide proxy policy defined in ``config/settings.py``. Resolved IPv4
-and IPv6 addresses are validated and returned in canonical form. Invalid
-address values resolve to ``None``.
+``infrastructure/audit.py``
+   Provides shared formatting for structured audit events.
 
-The same proxy policy is reused by ``django-axes`` so that authentication
-lockout behaviour and application-level client IP handling remain
-consistent.
+``infrastructure/request.py``
+   Provides shared client IP resolution for application code.
 
-The package is reserved for project-wide technical infrastructure. Domain-
-specific behaviour remains inside the corresponding Django application.
+   Client addresses are selected through ``django-ipware`` according to the
+   project-wide proxy policy defined in ``config/settings.py``. Resolved IPv4
+   and IPv6 addresses are validated and returned in canonical form. Invalid
+   address values resolve to ``None``.
+
+   The same proxy policy is reused by ``django-axes`` so that authentication
+   lockout behaviour and application-level client IP handling remain
+   consistent.
+
+The package contains project-wide technical infrastructure. Domain-specific
+behaviour remains inside the corresponding Django application.
+
 
 Accounts application
 --------------------
@@ -310,32 +313,51 @@ The current application structure is:
    ├── urls.py
    └── views.py
 
-``accounts/apps.py`` defines the Django application configuration.
+The ``__init__.py`` files mark their corresponding directories as Python
+packages.
 
-``accounts/forms.py`` defines the Vocabio login form. The form subclasses
-Django's standard ``AuthenticationForm`` and configures the username and
-password fields for the Vocabio authentication interface.
+The application modules and templates have the following responsibilities:
 
-``accounts/security.py`` integrates application-level audit logging with
-django-axes lockout responses. Axes remains responsible for determining
-lockout state, while the helper records structured ``[AUTH|LOCKOUT]`` events
-and returns the configured lockout response.
+``accounts/apps.py``
+   Defines the Django application configuration.
 
-``accounts/urls.py`` defines the namespaced login and logout routes.
+``accounts/forms.py``
+   Defines the Vocabio login form.
 
-``accounts/views.py`` implements login and logout behaviour using Django's
-standard authentication and session framework. Login supports validated
-local ``next`` redirects, while logout requires an authenticated ``POST``
-request. Successful login and logout operations emit structured
-authentication audit events.
+   The form subclasses Django's standard ``AuthenticationForm`` and
+   configures the username and password fields for the Vocabio
+   authentication interface.
 
-``accounts/templates/accounts/login.html`` contains the current login page.
-The form uses CSRF protection, displays form validation errors, and preserves
-a validated local redirect target when one is supplied.
+``accounts/security.py``
+   Integrates application-level audit logging with django-axes lockout
+   responses.
 
-``accounts/admin.py`` and ``accounts/models.py`` currently contain no
-application-specific behaviour. The application uses Django's built-in user
-model rather than defining an account model of its own.
+   Axes remains responsible for determining lockout state, while the helper
+   records structured ``[AUTH|LOCKOUT]`` events and returns the configured
+   lockout response.
+
+``accounts/urls.py``
+   Defines the namespaced login and logout routes.
+
+``accounts/views.py``
+   Implements login and logout behaviour using Django's standard
+   authentication and session framework.
+
+   Login supports validated local ``next`` redirects, while logout requires
+   an authenticated ``POST`` request. Successful login and logout operations
+   emit structured authentication audit events.
+
+``accounts/templates/accounts/login.html``
+   Contains the current login page.
+
+   The form uses CSRF protection, displays form validation errors, and
+   preserves a validated local redirect target when one is supplied.
+
+``accounts/admin.py`` and ``accounts/models.py``
+   Currently contain no application-specific behaviour.
+
+   The application uses Django's built-in user model rather than defining an
+   account model of its own.
 
 Application-specific tests are stored in ``accounts/tests``. They cover the
 login form, URL configuration, authentication views, authentication audit
@@ -345,6 +367,7 @@ IP handling, and Django Admin lockout protection.
 
 Detailed authentication behaviour and the project authorisation policy are
 documented in :doc:`authentication`.
+
 
 Tests
 -----
@@ -366,32 +389,41 @@ The current project-level test package contains:
    ├── test_request.py
    └── test_settings.py
 
-``tests/assertions.py`` contains reusable assertions shared by application
-test suites.
+``tests/__init__.py`` marks ``tests`` as a Python package.
 
-``tests/test_audit.py`` verifies structured audit-event formatting,
-including typed values, quoted strings, newline escaping, and events without
-additional fields.
+The test modules and shared support code have the following
+responsibilities:
 
-``tests/test_authentication_settings.py`` verifies the project-level
-authentication routing, redirect settings, authentication backends, lockout
-policy, lockout-response integration, and client IP resolution
-configuration.
+``tests/assertions.py``
+   Contains reusable assertions shared by application test suites.
 
-``tests/test_database.py`` verifies real Django connectivity to PostgreSQL
-and confirms that the configured connection uses the PostgreSQL backend.
+``tests/test_audit.py``
+   Verifies structured audit-event formatting, including typed values,
+   quoted strings, newline escaping, and events without additional fields.
 
-``tests/test_logging.py`` verifies development and production logging
-configuration, logger thresholds, local file rotation, console formatting,
-and audit logger availability.
+``tests/test_authentication_settings.py``
+   Verifies the project-level authentication routing, redirect settings,
+   authentication backends, lockout policy, lockout-response integration,
+   and client IP resolution configuration.
 
-``tests/test_request.py`` verifies project-wide client IP resolution,
-including forwarded-address handling, proxy ordering, IPv6 normalisation,
-and invalid address rejection.
+``tests/test_database.py``
+   Verifies real Django connectivity to PostgreSQL and confirms that the
+   configured connection uses the PostgreSQL backend.
 
-``tests/test_settings.py`` verifies environment handling and project
-configuration, including PostgreSQL database URL validation and related
-settings behaviour.
+``tests/test_logging.py``
+   Verifies development and production logging configuration, logger
+   thresholds, local file rotation, console formatting, and audit logger
+   availability.
+
+``tests/test_request.py``
+   Verifies project-wide client IP resolution, including forwarded-address
+   handling, proxy ordering, IPv6 normalisation, and invalid address
+   rejection.
+
+``tests/test_settings.py``
+   Verifies environment handling and project configuration, including
+   PostgreSQL database URL validation, production security requirements,
+   trusted proxy HTTPS configuration, and related settings behaviour.
 
 The testing framework, test execution, and coverage requirements are
 documented in :doc:`../development/testing`.
@@ -400,7 +432,6 @@ Application-specific tests are stored inside the corresponding application
 package, while the top-level ``tests`` package contains project-level
 configuration and infrastructure tests together with shared test support.
 
-``tests/__init__.py`` marks ``tests`` as a Python package.
 
 Continuous integration
 ----------------------
@@ -417,6 +448,7 @@ containers where database access is required.
 
 The workflow and its individual checks are documented in
 :doc:`../development/continuous-integration`.
+
 
 Documentation
 -------------
@@ -441,58 +473,49 @@ The documentation directory is organised as follows:
    ├── README.md
    └── make.bat
 
+The authored documentation sections have the following responsibilities:
+
 ``getting-started``
-~~~~~~~~~~~~~~~~~~~
+   Contains the software requirements, installation procedure, and local
+   development workflow.
 
-Contains the software requirements, installation procedure, and local
-development workflow.
-
-See :doc:`../getting-started/index`.
+   See :doc:`../getting-started/index`.
 
 ``configuration``
-~~~~~~~~~~~~~~~~~
+   Documents environment variables and database configuration.
 
-Documents environment variables and database configuration.
-
-See :doc:`../configuration/index`.
+   See :doc:`../configuration/index`.
 
 ``development``
-~~~~~~~~~~~~~~~
+   Documents testing, code-quality checks, dependency auditing, and
+   continuous integration.
 
-Documents testing, code-quality checks, dependency auditing, and continuous
-integration.
-
-See :doc:`../development/index`.
+   See :doc:`../development/index`.
 
 ``deployment``
-~~~~~~~~~~~~~~
+   Documents the production container build, Koyeb deployment, Neon
+   PostgreSQL configuration, and routine deployment operations.
 
-Documents the production container build, Koyeb deployment, Neon PostgreSQL
-configuration, and routine deployment operations.
-
-See :doc:`../deployment/index`.
+   See :doc:`../deployment/index`.
 
 ``project``
-~~~~~~~~~~~
+   Documents the repository structure and other project-level information.
 
-Documents the repository structure and other project-level information.
-
-See :doc:`index`.
-
-Additional documentation sections should be introduced only when the
-corresponding project components exist.
+   See :doc:`index`.
 
 ``reference``
-~~~~~~~~~~~~~
+   Provides technical reference documentation generated from source-code
+   docstrings.
 
-Provides technical reference documentation generated from source-code
-docstrings.
-
-See :doc:`../reference/index`.
+   See :doc:`../reference/index`.
 
 The ``docs`` directory also contains the Sphinx build wrappers and the
 documentation README, while authored Sphinx pages are stored under
 ``docs/source``.
+
+Additional documentation sections should be introduced only when the
+corresponding project components exist.
+
 
 Environment template
 --------------------
@@ -508,6 +531,7 @@ The procedure for creating the local ``.env`` file is documented in
 The complete variable reference is available in
 :doc:`../configuration/environment`.
 
+
 Local infrastructure
 --------------------
 
@@ -520,6 +544,7 @@ Database configuration is documented in
 :doc:`../configuration/database`, and the normal start and stop workflow is
 documented in :doc:`../getting-started/local-development`.
 
+
 Production container
 --------------------
 
@@ -531,24 +556,26 @@ not remain in the final runtime image. Runtime dependencies are installed
 from ``poetry.lock``, Django static files are collected during the build, and
 Gunicorn runs the application as a non-root container user.
 
-``.dockerignore`` limits the Docker build context and prevents local Secrets
+``.dockerignore`` limits the Docker build context and prevents local secrets
 and development artefacts from being copied into the production image.
 
 The production container build is documented in
 :doc:`../deployment/docker`, while Koyeb-specific deployment configuration is
 documented in :doc:`../deployment/koyeb`.
 
+
 Python runtime
 --------------
 
-``.python-version`` records Python 3.13 as the preferred local development and
-primary CI runtime.
+``.python-version`` records Python 3.13 as the preferred local development
+and primary CI runtime.
 
 The production Dockerfile independently uses the Python 3.13 runtime series.
 The two configurations should remain aligned.
 
 The supported Python versions and development prerequisites are documented
 in :doc:`../getting-started/requirements`.
+
 
 Project metadata and dependencies
 ---------------------------------
@@ -570,6 +597,7 @@ Poetry.
 The lock file should remain consistent with ``pyproject.toml`` and should be
 committed whenever dependency resolution changes.
 
+
 Django management entry point
 -----------------------------
 
@@ -586,31 +614,30 @@ Common local commands include:
 The local development workflow is documented in
 :doc:`../getting-started/local-development`.
 
+
 Repository metadata
 -------------------
 
+The repository-level metadata files have the following responsibilities:
+
 ``README.md``
-~~~~~~~~~~~~~
+   Provides the repository-level introduction to Vocabio and serves as the
+   main entry point when the repository is viewed through the Git hosting
+   service.
 
-Provides the repository-level introduction to Vocabio and serves as the main
-entry point when the repository is viewed through the Git hosting service.
-
-Detailed technical documentation belongs in ``docs`` rather than being
-duplicated in the repository README.
+   Detailed technical documentation belongs in ``docs`` rather than being
+   duplicated in the repository README.
 
 ``LICENSE``
-~~~~~~~~~~~
-
-Contains the licence terms under which the repository is distributed.
+   Contains the licence terms under which the repository is distributed.
 
 ``.gitignore``
-~~~~~~~~~~~~~~
+   Defines files and directories that Git must not track, including local or
+   generated development artefacts where applicable.
 
-Defines files and directories that Git must not track, including local or
-generated development artefacts where applicable.
+   Sensitive local configuration such as ``.env`` must remain outside
+   version control.
 
-Sensitive local configuration such as ``.env`` must remain outside version
-control.
 
 Related documentation
 ---------------------
